@@ -7,6 +7,20 @@
 .buildlog/
 .history
 
+# IDE files
+*.iml
+.idea/
+.vscode/
+
+# Flutter metadata
+.metadata
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
 
 
 # Flutter repo-specific

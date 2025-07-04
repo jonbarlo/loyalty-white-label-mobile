@@ -80,55 +80,116 @@ lib/
 - **UI Components**: Material Design 3
 - **Theme**: Custom theme with light/dark mode support
 
+## Platform Support
+
+This app supports the following platforms:
+
+- **Android** (mobile)
+- **iOS** (mobile, requires Mac with Xcode)
+- **Windows** (desktop)
+- **Web** (Chrome, Edge, etc.)
+
+You can build and run the app on any of these platforms. See below for platform-specific setup.
+
+## Fonts & Assets
+
+- Uses **Roboto Flex** as the primary font for a modern, readable UI.
+- Ensure the `assets/fonts/` directory contains the Roboto Flex font files (see `pubspec.yaml` for details).
+- Asset folders (e.g., `assets/images/`, `assets/icons/`) must exist, even if empty, to avoid build errors.
+
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK 3.0 or higher
+- Flutter SDK 3.0 or higher ([Install Flutter](https://docs.flutter.dev/get-started/install))
 - Dart SDK 2.19 or higher
 - Android Studio / VS Code
-- Android SDK / Xcode (for mobile development)
+- Android SDK (for Android)
+- Xcode (for iOS, Mac only)
+- Visual Studio with Desktop C++ workload (for Windows)
 
-### Installation
+### Installation & Setup
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd loyalty-white-label-mobile
-```
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd loyalty-white-label-mobile
+   ```
 
-2. Install dependencies:
-```bash
-flutter pub get
-```
+2. **Install dependencies:**
+   ```bash
+   flutter pub get
+   ```
 
-3. Configure the API endpoint:
+3. **Enable desired platforms:**
+   - **Android:**
+     ```bash
+     flutter create --platforms=android .
+     ```
+   - **iOS (on Mac):**
+     ```bash
+     flutter create --platforms=ios .
+     ```
+   - **Windows:**
+     ```bash
+     flutter create --platforms=windows .
+     ```
+   - **Web:**
+     ```bash
+     flutter create --platforms=web .
+     ```
+
+4. **Configure the API endpoint:**
    - Open `lib/core/services/api_service.dart`
-   - Update the `baseUrl` constant to point to your Loyalty Engine API server
+   - Update the `baseUrl` constant to your Loyalty Engine API server
 
-4. Run the app:
-```bash
-flutter run
+5. **Run the app:**
+   - **Android:**
+     ```bash
+     flutter run -d android
+     ```
+   - **iOS:**
+     ```bash
+     flutter run -d ios
+     ```
+   - **Windows:**
+     ```bash
+     flutter run -d windows
+     ```
+   - **Web:**
+     ```bash
+     flutter run -d chrome
+     ```
+
+### Font Setup
+
+Roboto Flex font files must be present in `assets/fonts/` and referenced in `pubspec.yaml`:
+
+```yaml
+fonts:
+  - family: RobotoFlex
+    fonts:
+      - asset: assets/fonts/RobotoFlex-Regular.ttf
+      - asset: assets/fonts/RobotoFlex-Bold.ttf
+      - asset: assets/fonts/RobotoFlex-Italic.ttf
 ```
 
-### Configuration
+If you change fonts, update both the font files and the theme configuration in `lib/core/theme/app_theme.dart`.
 
-#### API Configuration
-The app is configured to connect to the Loyalty Engine API running on `http://localhost:3000`. To change this:
+### Asset Folders
 
-1. Open `lib/core/services/api_service.dart`
-2. Update the `baseUrl` constant:
-```dart
-static const String baseUrl = 'https://your-api-server.com';
-```
+Ensure these folders exist (even if empty):
+- `assets/fonts/`
+- `assets/images/`
+- `assets/icons/`
 
-#### Theme Configuration
-The app uses a custom theme defined in `lib/core/theme/app_theme.dart`. You can customize:
+## Troubleshooting
 
-- Primary and secondary colors
-- Text colors and typography
-- Component styles (buttons, cards, etc.)
-- Dark mode support
+- **Missing platform error:** If you see errors like `This application is not configured to build on the web`, run the appropriate `flutter create --platforms=... .` command for your platform.
+- **Missing font or asset errors:** Ensure all asset folders exist and the Roboto Flex font files are present as described above.
+- **Android toolchain issues:** Run `flutter doctor` and follow the instructions to install missing SDK components or accept licenses.
+- **iOS build issues:** Must be on a Mac with Xcode installed. Run `sudo xcode-select --switch /Applications/Xcode.app` if you have multiple Xcode versions.
+- **Windows build issues:** Ensure Visual Studio with Desktop C++ workload is installed.
 
 ## API Integration
 

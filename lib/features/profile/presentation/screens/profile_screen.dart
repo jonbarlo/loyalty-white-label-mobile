@@ -32,11 +32,11 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // User Information
-                _buildUserInfo(user),
+                _buildUserInfo(context, user),
                 const SizedBox(height: 24),
 
                 // Settings Section
-                _buildSettingsSection(),
+                _buildSettingsSection(context),
                 const SizedBox(height: 24),
 
                 // Logout Button
@@ -113,7 +113,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInfo(user) {
+  Widget _buildUserInfo(BuildContext context, user) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +170,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsSection() {
+  Widget _buildSettingsSection(BuildContext context) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

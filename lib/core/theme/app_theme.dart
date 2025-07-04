@@ -35,7 +35,7 @@ class AppTheme {
         seedColor: primaryColor,
         brightness: Brightness.light,
       ),
-      fontFamily: 'Poppins',
+      fontFamily: 'RobotoFlex',
       
       // AppBar Theme
       appBarTheme: const AppBarTheme(
@@ -51,7 +51,7 @@ class AppTheme {
       ),
       
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
@@ -163,7 +163,7 @@ class AppTheme {
         seedColor: primaryColor,
         brightness: Brightness.dark,
       ),
-      fontFamily: 'Poppins',
+      fontFamily: 'RobotoFlex',
       
       // AppBar Theme
       appBarTheme: const AppBarTheme(
@@ -179,7 +179,7 @@ class AppTheme {
       ),
       
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: darkSurfaceColor,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.3),

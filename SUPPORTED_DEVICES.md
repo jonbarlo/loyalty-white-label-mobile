@@ -14,6 +14,12 @@ This document outlines the device requirements, setup instructions, and testing 
 - **Recommended**: iOS 14.0 or higher
 - **Target**: iOS 16.0 or higher
 
+### **Windows Desktop**
+- **Minimum**: Windows 10 (version 1903) or higher
+- **Recommended**: Windows 11 or higher
+- **Architecture**: x64 (64-bit)
+- **Requirements**: Visual Studio 2019 or later with C++ build tools
+
 ## 🖥️ Development Setup Options
 
 ### **1. Physical Devices (Recommended)**
@@ -64,6 +70,25 @@ This document outlines the device requirements, setup instructions, and testing 
   3. Select device from Hardware menu
   4. Choose iOS version
 
+### **3. Windows Desktop**
+
+#### **Windows Desktop Setup**
+- **Requirements**:
+  - Windows 10 (version 1903) or higher
+  - Visual Studio 2019 or later
+  - "Desktop development with C++" workload installed
+  - Windows 10 SDK
+
+- **Setup Steps**:
+  1. Install Visual Studio Community 2022 (free)
+  2. During installation, select "Desktop development with C++"
+  3. Ensure these components are included:
+     - MSVC v142 - VS 2019 C++ x64/x86 build tools
+     - C++ CMake tools for Windows
+     - Windows 10 SDK
+  4. Enable Windows desktop: `flutter config --enable-windows-desktop`
+  5. Run `flutter doctor` to verify setup
+
 ## 🔧 Device Configuration for Your Loyalty App
 
 ### **Recommended Device Specifications**
@@ -100,6 +125,9 @@ flutter run -d android
 # Run on connected iOS device
 flutter run -d ios
 
+# Run on Windows desktop
+flutter run -d windows
+
 # Run on specific device by ID
 flutter run -d <device-id>
 ```
@@ -114,6 +142,9 @@ flutter build appbundle
 
 # Build iOS (Mac only)
 flutter build ios
+
+# Build Windows desktop
+flutter build windows
 ```
 
 ## 📋 Device Testing Checklist
@@ -200,20 +231,21 @@ flutter build ios
 
 ## 📊 Device Compatibility Matrix
 
-| Device Type | Android Version | iOS Version | Status | Notes |
-|-------------|----------------|-------------|--------|-------|
-| Modern Phones | 8.0+ | 14.0+ | ✅ Full Support | Optimal experience |
-| Mid-range Phones | 7.0+ | 12.0+ | ✅ Supported | Good performance |
-| Budget Phones | 6.0+ | 11.0+ | ⚠️ Limited | Basic functionality |
-| Tablets | 8.0+ | 12.0+ | ✅ Supported | Responsive design |
-| Older Devices | 5.0+ | 11.0+ | ❌ Not Recommended | Performance issues |
+| Device Type | Android Version | iOS Version | Windows Version | Status | Notes |
+|-------------|----------------|-------------|----------------|--------|-------|
+| Modern Phones | 8.0+ | 14.0+ | - | ✅ Full Support | Optimal experience |
+| Mid-range Phones | 7.0+ | 12.0+ | - | ✅ Supported | Good performance |
+| Budget Phones | 6.0+ | 11.0+ | - | ⚠️ Limited | Basic functionality |
+| Tablets | 8.0+ | 12.0+ | - | ✅ Supported | Responsive design |
+| Windows Desktop | - | - | 10 (1903)+ | ✅ Full Support | Native desktop experience |
+| Older Devices | 5.0+ | 11.0+ | - | ❌ Not Recommended | Performance issues |
 
 ## 🔧 Development Environment Setup
 
 ### **Windows Development**
-- **Required**: Android Studio, Android SDK
+- **Required**: Visual Studio with C++ build tools, Android Studio, Android SDK
 - **Optional**: VS Code with Flutter extension
-- **Testing**: Android emulator or physical device
+- **Testing**: Windows desktop, Android emulator, or physical device
 
 ### **macOS Development**
 - **Required**: Xcode, Android Studio
