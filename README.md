@@ -3,7 +3,7 @@
 A modern Flutter mobile application for managing loyalty programs, punch cards, points, and rewards. This app integrates with the Loyalty Engine API to provide a comprehensive loyalty management experience.
 
 ## Features
-
+![Screenshot 2025-07-03 230113](https://github.com/user-attachments/assets/82a15ddd-11c9-48e7-9e31-88a6802aed16)
 ### 🔐 Authentication
 - User registration and login
 - JWT token-based authentication
