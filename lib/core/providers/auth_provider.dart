@@ -67,13 +67,13 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String email, String password) async {
+  Future<bool> register(String name, String email, String password, [String? businessId]) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _apiService.register(name, email, password);
+      final response = await _apiService.register(name, email, password, businessId);
       
       final token = response['token'];
       final userData = response['user'];

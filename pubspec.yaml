@@ -36,6 +36,9 @@ dependencies:
   
   # Notifications
   flutter_local_notifications: ^16.3.0
+  
+  # Environment Variables
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +51,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - env.example
   
   fonts:
     - family: RobotoFlex

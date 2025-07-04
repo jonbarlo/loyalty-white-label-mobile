@@ -6,15 +6,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/providers/auth_provider.dart';
+import 'core/providers/business_provider.dart';
 import 'core/providers/punch_card_provider.dart';
 import 'core/providers/point_transaction_provider.dart';
 import 'core/providers/reward_provider.dart';
 import 'core/providers/notification_provider.dart';
 import 'core/services/api_service.dart';
 import 'core/services/storage_service.dart';
+import 'core/config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize environment variables
+  await AppConfig.initialize();
   
   // Initialize services
   final storageService = StorageService();
@@ -46,6 +51,9 @@ class MyApp extends StatelessWidget {
           create: (context) => AuthProvider(apiService, storageService),
         ),
         ChangeNotifierProvider(
+          create: (context) => BusinessProvider(apiService),
+        ),
+        ChangeNotifierProvider(
           create: (context) => PunchCardProvider(apiService),
         ),
         ChangeNotifierProvider(
@@ -63,12 +71,12 @@ class MyApp extends StatelessWidget {
           final router = AppRouter(authProvider).router;
           
           return MaterialApp.router(
-            title: 'Loyalty App',
+            title: AppConfig.appName,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.system,
             routerConfig: router,
-            debugShowCheckedModeBanner: false,
+            debugShowCheckedModeBanner: AppConfig.debugMode,
           );
         },
       ),

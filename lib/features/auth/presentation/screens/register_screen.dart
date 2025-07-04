@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/providers/business_provider.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/models/business.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,10 +15,19 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BusinessProvider>().loadBusinesses();
+    });
+  }
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  Business? _selectedBusiness;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -37,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _nameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
+      _selectedBusiness?.id.toString(),
     );
 
     if (success && mounted) {
@@ -112,6 +124,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return 'Name must be at least 2 characters';
                       }
                       return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Business Selection Field
+                  Consumer<BusinessProvider>(
+                    builder: (context, businessProvider, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Select Business (Optional)',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.business_outlined,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _selectedBusiness?.name ?? 'Choose a business...',
+                                    style: TextStyle(
+                                      color: _selectedBusiness != null 
+                                          ? null 
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (businessProvider.businesses.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              constraints: const BoxConstraints(maxHeight: 200),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: businessProvider.businesses.length,
+                                itemBuilder: (context, index) {
+                                  final business = businessProvider.businesses[index];
+                                  return ListTile(
+                                    title: Text(business.name),
+                                    subtitle: business.description != null 
+                                        ? Text(business.description!)
+                                        : null,
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedBusiness = business;
+                                      });
+                                    },
+                                    selected: _selectedBusiness?.id == business.id,
+                                  );
+                                },
+                              ),
+                            ),
+                          ] else if (businessProvider.isLoading) ...[
+                            const SizedBox(height: 8),
+                            const Center(child: CircularProgressIndicator()),
+                          ] else ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'No businesses available',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ],
+                      );
                     },
                   ),
                   const SizedBox(height: 16),

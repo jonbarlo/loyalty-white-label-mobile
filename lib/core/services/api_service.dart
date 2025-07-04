@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000';
   late Dio _dio;
 
   ApiService() {
     _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
+      baseUrl: AppConfig.apiBaseUrl,
+      connectTimeout: Duration(milliseconds: AppConfig.apiTimeout),
+      receiveTimeout: Duration(milliseconds: AppConfig.apiTimeout),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -57,13 +57,20 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+  Future<Map<String, dynamic>> register(String name, String email, String password, [String? businessId]) async {
     try {
-      final response = await _dio.post('/auth/register', data: {
+      final data = {
         'name': name,
         'email': email,
         'password': password,
-      });
+      };
+      
+      // Only include businessId if it's provided and not empty
+      if (businessId != null && businessId.isNotEmpty) {
+        data['businessId'] = businessId;
+      }
+      
+      final response = await _dio.post('/auth/register', data: data);
       return response.data;
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -240,6 +247,51 @@ class ApiService {
     try {
       final response = await _dio.patch('/notifications/$id/read');
       return response.data;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  // Business endpoints
+  Future<List<Map<String, dynamic>>> getBusinesses() async {
+    try {
+      final response = await _dio.get('/businesses');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getBusiness(int id) async {
+    try {
+      final response = await _dio.get('/businesses/$id');
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> createBusiness(Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post('/businesses', data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateBusiness(int id, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put('/businesses/$id', data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  Future<void> deleteBusiness(int id) async {
+    try {
+      await _dio.delete('/businesses/$id');
     } on DioException catch (e) {
       throw _handleDioError(e);
     }

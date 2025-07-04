@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
@@ -9,7 +10,12 @@ import '../../features/points/presentation/screens/points_screen.dart';
 import '../../features/rewards/presentation/screens/rewards_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/business/presentation/screens/business_list_screen.dart';
+import '../../features/business/presentation/screens/business_detail_screen.dart';
+import '../../features/business/presentation/screens/business_form_screen.dart';
+import '../../features/business/presentation/screens/business_test_screen.dart';
 import '../providers/auth_provider.dart';
+import '../../core/models/business.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -17,20 +23,32 @@ class AppRouter {
   AppRouter(this.authProvider);
 
   GoRouter get router => GoRouter(
-    initialLocation: '/',
+    initialLocation: '/dashboard',
     redirect: (context, state) {
       final isAuthenticated = authProvider.isAuthenticated;
       final isAuthRoute = state.matchedLocation == '/login' || 
                          state.matchedLocation == '/register';
+      final isBusinessRoute = state.matchedLocation.startsWith('/businesses');
+
+      print('Router redirect - isAuthenticated: $isAuthenticated, location: ${state.matchedLocation}');
 
       if (!isAuthenticated && !isAuthRoute) {
+        print('Redirecting to /login');
         return '/login';
       }
 
       if (isAuthenticated && isAuthRoute) {
+        print('Redirecting to /dashboard');
         return '/dashboard';
       }
 
+      // Redirect non-admin users away from business routes
+      if (isAuthenticated && isBusinessRoute && !authProvider.isAdmin) {
+        print('Non-admin user trying to access business route, redirecting to /dashboard');
+        return '/dashboard';
+      }
+
+      print('No redirect needed');
       return null;
     },
     routes: [
@@ -88,6 +106,46 @@ class AppRouter {
             name: 'profile',
             builder: (context, state) => const ProfileScreen(),
           ),
+          GoRoute(
+            path: '/businesses',
+            name: 'businesses',
+            builder: (context, state) => const BusinessListScreen(),
+          ),
+          GoRoute(
+            path: '/businesses/create',
+            name: 'business-create',
+            builder: (context, state) => const BusinessFormScreen(),
+          ),
+          GoRoute(
+            path: '/businesses/test',
+            name: 'business-test',
+            builder: (context, state) => const BusinessTestScreen(),
+          ),
+          GoRoute(
+            path: '/businesses/:id/edit',
+            name: 'business-edit',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              // For now, we'll create a placeholder business
+              // In a real app, you'd load the business data here
+              final business = Business(
+                id: id,
+                name: 'Loading...',
+                isActive: true,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              );
+              return BusinessFormScreen(business: business);
+            },
+          ),
+          GoRoute(
+            path: '/businesses/:id',
+            name: 'business-detail',
+            builder: (context, state) {
+              final id = int.parse(state.pathParameters['id']!);
+              return BusinessDetailScreen(businessId: id);
+            },
+          ),
         ],
       ),
     ],
@@ -106,36 +164,60 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
-  final List<NavigationItem> _navigationItems = [
-    NavigationItem(
-      icon: Icons.dashboard,
-      label: 'Dashboard',
-      route: '/dashboard',
-    ),
-    NavigationItem(
-      icon: Icons.card_giftcard,
-      label: 'Punch Cards',
-      route: '/punch-cards',
-    ),
-    NavigationItem(
-      icon: Icons.stars,
-      label: 'Points',
-      route: '/points',
-    ),
-    NavigationItem(
-      icon: Icons.redeem,
-      label: 'Rewards',
-      route: '/rewards',
-    ),
-    NavigationItem(
-      icon: Icons.person,
-      label: 'Profile',
-      route: '/profile',
-    ),
-  ];
+  List<NavigationItem> get _navigationItems {
+    final authProvider = context.read<AuthProvider>();
+    final items = <NavigationItem>[
+      NavigationItem(
+        icon: Icons.dashboard,
+        label: 'Dashboard',
+        route: '/dashboard',
+      ),
+    ];
+    
+    // Only show business navigation for admin users
+    if (authProvider.isAdmin) {
+      items.add(NavigationItem(
+        icon: Icons.business,
+        label: 'Businesses',
+        route: '/businesses',
+      ));
+    }
+    
+    items.addAll([
+      NavigationItem(
+        icon: Icons.card_giftcard,
+        label: 'Punch Cards',
+        route: '/punch-cards',
+      ),
+      NavigationItem(
+        icon: Icons.stars,
+        label: 'Points',
+        route: '/points',
+      ),
+      NavigationItem(
+        icon: Icons.redeem,
+        label: 'Rewards',
+        route: '/rewards',
+      ),
+      NavigationItem(
+        icon: Icons.person,
+        label: 'Profile',
+        route: '/profile',
+      ),
+    ]);
+    
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final navigationItems = _navigationItems;
+    
+    // Adjust current index if it's out of bounds due to dynamic items
+    if (_currentIndex >= navigationItems.length) {
+      _currentIndex = 0;
+    }
+    
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
@@ -144,10 +226,10 @@ class _MainScaffoldState extends State<MainScaffold> {
           setState(() {
             _currentIndex = index;
           });
-          context.go(_navigationItems[index].route);
+          context.go(navigationItems[index].route);
         },
         type: BottomNavigationBarType.fixed,
-        items: _navigationItems.map((item) => BottomNavigationBarItem(
+        items: navigationItems.map((item) => BottomNavigationBarItem(
           icon: Icon(item.icon),
           label: item.label,
         )).toList(),

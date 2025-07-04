@@ -121,7 +121,22 @@ You can build and run the app on any of these platforms. See below for platform-
    flutter pub get
    ```
 
-3. **Enable desired platforms:**
+3. **Set up environment variables:**
+   ```bash
+   # Windows (PowerShell)
+   .\setup_env.ps1
+   
+   # Or manually copy the example file
+   cp env.example .env
+   ```
+   
+   Then edit `.env` file to configure:
+   - `APP_NAME`: Your app name
+   - `API_BASE_URL`: Your Loyalty Engine API server URL
+   - `API_TIMEOUT`: API request timeout in milliseconds
+   - Feature flags and other settings
+
+4. **Enable desired platforms:**
    - **Android:**
      ```bash
      flutter create --platforms=android .
@@ -138,10 +153,6 @@ You can build and run the app on any of these platforms. See below for platform-
      ```bash
      flutter create --platforms=web .
      ```
-
-4. **Configure the API endpoint:**
-   - Open `lib/core/services/api_service.dart`
-   - Update the `baseUrl` constant to your Loyalty Engine API server
 
 5. **Run the app:**
    - **Android:**
@@ -182,6 +193,29 @@ Ensure these folders exist (even if empty):
 - `assets/fonts/`
 - `assets/images/`
 - `assets/icons/`
+
+### Environment Variables
+
+The app uses environment variables for configuration. Create a `.env` file based on `env.example`:
+
+```bash
+# App Configuration
+APP_NAME=Loyalty Mobile App
+APP_VERSION=1.0.0
+
+# API Configuration
+API_BASE_URL=http://localhost:3000
+API_TIMEOUT=30000
+
+# Feature Flags
+ENABLE_NOTIFICATIONS=true
+ENABLE_QR_CODE=true
+
+# Development
+DEBUG_MODE=true
+```
+
+**Important:** The `.env` file is ignored by git for security. Each developer should create their own local copy.
 
 ## Troubleshooting
 

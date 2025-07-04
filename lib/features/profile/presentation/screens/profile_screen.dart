@@ -16,6 +16,7 @@ class ProfileScreen extends StatelessWidget {
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.user;
+          debugPrint('ProfileScreen user: ' + user.toString());
           
           if (user == null) {
             return const Center(
@@ -129,18 +130,21 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
-          _buildInfoItem('User ID', '${user.id}'),
-          _buildInfoItem('Business ID', user.businessId?.toString() ?? 'N/A'),
-          _buildInfoItem('Email', user.email),
-          _buildInfoItem('Name', user.name),
-          _buildInfoItem('Role', user.role),
-          _buildInfoItem('Status', user.isActive ? 'Active' : 'Inactive'),
+          _buildInfoItem('User ID', '${user.id}', context),
+          _buildInfoItem('Business ID', user.businessId?.toString() ?? 'N/A', context),
+          _buildInfoItem('Email', user.email, context),
+          _buildInfoItem('Name', user.name, context),
+          _buildInfoItem('Role', user.role, context),
+          _buildInfoItem('Status', user.isActive ? 'Active' : 'Inactive', context),
         ],
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
+  Widget _buildInfoItem(String label, String value, [BuildContext? context]) {
+    final isDark = context != null && Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark ? Colors.white70 : AppTheme.textSecondary;
+    final valueColor = isDark ? Colors.white : AppTheme.textPrimary;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -149,8 +153,8 @@ class ProfileScreen extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                color: labelColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -159,8 +163,8 @@ class ProfileScreen extends StatelessWidget {
             flex: 3,
             child: Text(
               value,
-              style: const TextStyle(
-                color: AppTheme.textPrimary,
+              style: TextStyle(
+                color: valueColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
