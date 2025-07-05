@@ -171,8 +171,42 @@ You can build and run the app on any of these platforms. See below for platform-
      ```bash
      flutter run -d chrome
      ```
+### Flutter Debug
+Checks if the code is clean and follows best practices.
+`flutter analyze --no-fatal-infos` 
 
-### Font Setup
+Formats the code to follow the best practices.
+`flutter format .`
+
+Runs the tests.
+`flutter test`
+
+Runs the linter.
+`flutter analyze --no-fatal-infos`
+
+Builds the app for the selected platform.
+`flutter build apk --release`
+
+Runs the app on the selected platform.
+`flutter run -d android`
+
+Cleans the project.
+`flutter clean`
+
+Gets the dependencies.
+`flutter pub get`
+
+Checks the project for any issues.
+`flutter doctor`
+
+Upgrades the project to the latest version.
+`flutter upgrade`
+
+Downgrades the project to the latest version.
+`flutter downgrade`
+
+Runs the app on the selected platform.
+`flutter run -d chrome --verbose`
 
 Roboto Flex font files must be present in `assets/fonts/` and referenced in `pubspec.yaml`:
 

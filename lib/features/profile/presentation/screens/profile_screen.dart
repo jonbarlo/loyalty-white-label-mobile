@@ -1,65 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/services/global_theme_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          final user = authProvider.user;
-          debugPrint('ProfileScreen user: ' + user.toString());
-          
-          if (user == null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Profile Header
-                _buildProfileHeader(user),
-                const SizedBox(height: 24),
-
-                // User Information
-                _buildUserInfo(context, user),
-                const SizedBox(height: 24),
-
-                // Settings Section
-                _buildSettingsSection(context),
-                const SizedBox(height: 24),
-
-                // Logout Button
-                _buildLogoutButton(context, authProvider),
-              ],
-            ),
-          );
-        },
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final dynamicBg = GlobalThemeService.getBackgroundColor(context, pageName: 'Profile');
+        final isLoading = GlobalThemeService.isLoading(context);
+        debugPrint('[ProfileScreen] Dynamic background color: $dynamicBg, isLoading: $isLoading');
+        return Scaffold(
+          backgroundColor: dynamicBg ?? Colors.pink,
+          appBar: AppBar(
+            title: const Text('Profile'),
+          ),
+          body: isLoading
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Loading theme...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Consumer<AuthProvider>(
+                  builder: (context, authProvider, child) {
+                    final user = authProvider.user;
+                    debugPrint('ProfileScreen user: \\${user.toString()}');
+                    if (user == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _buildProfileHeader(context, user),
+                          const SizedBox(height: 24),
+                          _buildUserInfo(context, user),
+                          const SizedBox(height: 24),
+                          _buildSettingsSection(context),
+                          const SizedBox(height: 24),
+                          _buildLogoutButton(context, authProvider),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileHeader(user) {
+  Widget _buildProfileHeader(BuildContext context, user) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // Profile Avatar
             CircleAvatar(
               radius: 50,
-              backgroundColor: AppTheme.primaryColor,
               child: Text(
                 user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
                 style: const TextStyle(
@@ -70,8 +85,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
-            // User Name
             Text(
               user.name,
               style: const TextStyle(
@@ -81,8 +94,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-
-            // User Email
             Text(
               user.email,
               style: const TextStyle(
@@ -91,8 +102,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-
-            // User Role
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -191,35 +200,17 @@ class ProfileScreen extends StatelessWidget {
           ),
           const Divider(height: 1),
           _buildSettingItem(
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            subtitle: 'Manage notification preferences',
+            icon: Icons.lock_outline,
+            title: 'Change Password',
             onTap: () {
-              // Navigate to notification settings
+              // Implement change password
             },
           ),
           _buildSettingItem(
-            icon: Icons.security_outlined,
-            title: 'Privacy & Security',
-            subtitle: 'Manage your privacy settings',
+            icon: Icons.delete_outline,
+            title: 'Delete Account',
             onTap: () {
-              // Navigate to privacy settings
-            },
-          ),
-          _buildSettingItem(
-            icon: Icons.help_outline,
-            title: 'Help & Support',
-            subtitle: 'Get help and contact support',
-            onTap: () {
-              // Navigate to help screen
-            },
-          ),
-          _buildSettingItem(
-            icon: Icons.info_outline,
-            title: 'About',
-            subtitle: 'App version and information',
-            onTap: () {
-              // Show about dialog
+              // Implement delete account
             },
           ),
         ],
@@ -230,31 +221,12 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSettingItem({
     required IconData icon,
     required String title,
-    required String subtitle,
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(
-        icon,
-        color: AppTheme.primaryColor,
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppTheme.textPrimary,
-        ),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(
-          color: AppTheme.textSecondary,
-        ),
-      ),
-      trailing: const Icon(
-        Icons.chevron_right,
-        color: AppTheme.textSecondary,
-      ),
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
     );
   }
@@ -263,20 +235,9 @@ class ProfileScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () => _showLogoutDialog(context, authProvider),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.errorColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
         icon: const Icon(Icons.logout),
-        label: const Text(
-          'Logout',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        label: const Text('Logout'),
+        onPressed: () => _showLogoutDialog(context, authProvider),
       ),
     );
   }
@@ -284,13 +245,12 @@ class ProfileScreen extends StatelessWidget {
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return AppTheme.errorColor;
-      case 'business_owner':
-        return AppTheme.warningColor;
-      case 'customer':
-        return AppTheme.primaryColor;
+        return Colors.deepPurple;
+      case 'staff':
+        return Colors.blue;
+      case 'user':
       default:
-        return AppTheme.textSecondary;
+        return Colors.green;
     }
   }
 
@@ -299,9 +259,7 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Logout'),
-        content: const Text(
-          'Are you sure you want to logout? You will need to sign in again to access your account.',
-        ),
+        content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -309,20 +267,15 @@ class ProfileScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.errorColor,
-              foregroundColor: Colors.white,
-            ),
             child: const Text('Logout'),
           ),
         ],
       ),
     );
-
     if (confirmed == true) {
       await authProvider.logout();
       if (context.mounted) {
-        context.go('/login');
+        Navigator.of(context).pushReplacementNamed('/login');
       }
     }
   }

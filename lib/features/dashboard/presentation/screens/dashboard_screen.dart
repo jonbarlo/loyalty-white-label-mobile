@@ -5,10 +5,12 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/punch_card_provider.dart';
 import '../../../../core/providers/point_transaction_provider.dart';
 import '../../../../core/providers/notification_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/punch_card.dart';
 import '../../../../core/models/point_transaction.dart';
 import '../../../../core/models/notification.dart';
+import '../../../../core/services/global_theme_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -38,102 +40,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        actions: [
-          IconButton(
-            icon: Stack(
-              children: [
-                const Icon(Icons.notifications_outlined),
-                Consumer<NotificationProvider>(
-                  builder: (context, notificationProvider, child) {
-                    if (notificationProvider.unreadCount > 0) {
-                      return Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: AppTheme.errorColor,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 12,
-                            minHeight: 12,
-                          ),
-                          child: Text(
-                            '${notificationProvider.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ],
-            ),
-            onPressed: () => context.go('/notifications'),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome Section
-              Consumer<AuthProvider>(
-                builder: (context, authProvider, child) {
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome back, ${authProvider.user?.name ?? 'User'}!',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Here\'s your loyalty summary',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Get dynamic background color from theme
+        final dynamicBg = GlobalThemeService.getBackgroundColor(context, pageName: 'Dashboard');
+        final isLoading = GlobalThemeService.isLoading(context);
+        debugPrint('[DashboardScreen] Dynamic background color: $dynamicBg, isLoading: $isLoading');
+        
+        return Scaffold(
+          backgroundColor: dynamicBg ?? Colors.green, // Fallback to green if no theme
+          appBar: AppBar(
+            title: Text(
+              'Dashboard',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 24),
-
-              // Stats Cards
-              _buildStatsSection(),
-              const SizedBox(height: 24),
-
-              // Quick Actions
-              _buildQuickActions(),
-              const SizedBox(height: 24),
-
-              // Recent Activities
-              _buildRecentActivities(),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.refresh,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
+                onPressed: _loadData,
+              ),
             ],
           ),
-        ),
-      ),
+          body: isLoading 
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading theme...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: _loadData,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildStatsSection(),
+                      const SizedBox(height: 32),
+                      _buildQuickActions(),
+                      const SizedBox(height: 32),
+                      _buildRecentActivities(),
+                    ],
+                  ),
+                ),
+              ),
+        );
+      },
     );
   }
 
@@ -145,7 +119,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Your Stats',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
           ),
         ),
         const SizedBox(height: 16),
@@ -158,7 +133,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.stars,
                     title: 'Total Points',
                     value: '${pointProvider.getTotalPoints()}',
-                    color: AppTheme.primaryColor,
+                    color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
                   );
                 },
               ),
@@ -174,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.card_giftcard,
                     title: 'Active Cards',
                     value: '$activeCards',
-                    color: AppTheme.secondaryColor,
+                    color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.secondaryColor,
                   );
                 },
               ),
@@ -192,28 +167,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required Color color,
   }) {
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 20),
         child: Column(
           children: [
             Icon(
               icon,
-              size: 32,
+              size: GlobalThemeService.getIconSize(context) ?? 32,
               color: color,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 12),
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
+                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
               ),
               textAlign: TextAlign.center,
             ),
@@ -231,7 +215,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Quick Actions',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
           ),
         ),
         const SizedBox(height: 16),
@@ -243,7 +228,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: 'Punch Cards',
                 subtitle: 'View your cards',
                 onTap: () => context.go('/punch-cards'),
-                color: AppTheme.primaryColor,
+                color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
               ),
             ),
             const SizedBox(width: 16),
@@ -253,7 +238,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: 'Points',
                 subtitle: 'Check balance',
                 onTap: () => context.go('/points'),
-                color: AppTheme.secondaryColor,
+                color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.secondaryColor,
               ),
             ),
           ],
@@ -267,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: 'Rewards',
                 subtitle: 'Available rewards',
                 onTap: () => context.go('/rewards'),
-                color: AppTheme.warningColor,
+                color: GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor,
               ),
             ),
             const SizedBox(width: 16),
@@ -277,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: 'Profile',
                 subtitle: 'Account settings',
                 onTap: () => context.go('/profile'),
-                color: AppTheme.successColor,
+                color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
               ),
             ),
           ],
@@ -294,24 +279,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required Color color,
   }) {
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 20),
           child: Column(
             children: [
               Icon(
                 icon,
-                size: 32,
+                size: GlobalThemeService.getIconSize(context) ?? 32,
                 color: color,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 12),
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -319,7 +314,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textSecondary,
+                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                  fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -338,7 +334,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Recent Activities',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
           ),
         ),
         const SizedBox(height: 16),
@@ -348,27 +345,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
             
             if (recentTransactions.isEmpty) {
               return Card(
+                color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+                elevation: GlobalThemeService.getElevation(context) ?? 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    GlobalThemeService.getBorderRadius(context) ?? 12,
+                  ),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 20),
                   child: Column(
                     children: [
                       Icon(
                         Icons.history,
-                        size: 48,
-                        color: AppTheme.textTertiary,
+                        size: GlobalThemeService.getIconSize(context) ?? 48,
+                        color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                       Text(
                         'No recent activities',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppTheme.textSecondary,
+                          color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Your recent point transactions will appear here',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textTertiary,
+                          color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
+                          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -381,12 +387,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return Column(
               children: recentTransactions.map((transaction) {
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+                  elevation: GlobalThemeService.getElevation(context) ?? 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      GlobalThemeService.getBorderRadius(context) ?? 8,
+                    ),
+                  ),
+                  margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 8),
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: transaction.type == 'earn' 
-                          ? AppTheme.successColor 
-                          : AppTheme.warningColor,
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor),
                       child: Icon(
                         transaction.type == 'earn' ? Icons.add : Icons.remove,
                         color: Colors.white,
@@ -394,14 +407,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     title: Text(
                       transaction.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
+                        color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                        fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                       ),
                     ),
                     subtitle: Text(
                       '${transaction.type.toUpperCase()} • ${transaction.points} points',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                        fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                       ),
                     ),
                     trailing: Text(
@@ -409,8 +425,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: transaction.type == 'earn' 
-                            ? AppTheme.successColor 
-                            : AppTheme.warningColor,
+                            ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                            : (GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor),
+                        fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                       ),
                     ),
                   ),

@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/providers/business_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/business.dart';
+import '../../../../core/services/global_theme_service.dart';
 
 class BusinessListScreen extends StatefulWidget {
   const BusinessListScreen({super.key});
@@ -14,7 +16,7 @@ class BusinessListScreen extends StatefulWidget {
 }
 
 class _BusinessListScreenState extends State<BusinessListScreen> {
-  final _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   bool _showOnlyActive = true;
 
   @override
@@ -33,30 +35,57 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Businesses'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            onPressed: () => context.go('/businesses/test'),
-            tooltip: 'Test API',
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Get dynamic background color from theme
+        final dynamicBg = GlobalThemeService.getBackgroundColor(context, pageName: 'Business');
+        final isLoading = GlobalThemeService.isLoading(context);
+        debugPrint('[BusinessListScreen] Dynamic background color: $dynamicBg, isLoading: $isLoading');
+        
+        return Scaffold(
+          backgroundColor: dynamicBg ?? Colors.purple, // Fallback to purple if no theme
+          appBar: AppBar(
+            title: const Text('Businesses'),
+            // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.bug_report),
+                onPressed: () => context.go('/businesses/test'),
+                tooltip: 'Test API',
+              ),
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  if (authProvider.isAdmin) {
+                    return IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () => context.go('/businesses/create'),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
           ),
-          Consumer<AuthProvider>(
-            builder: (context, authProvider, child) {
-              if (authProvider.isAdmin) {
-                return IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () => context.go('/businesses/create'),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
-      body: Column(
+          body: isLoading 
+            ? const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading theme...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Column(
         children: [
           // Search and Filter Bar
           Padding(
@@ -191,6 +220,8 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
         ],
       ),
     );
+  },
+);
   }
 }
 
@@ -205,23 +236,23 @@ class _BusinessCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: business.isActive 
-              ? AppTheme.primaryColor 
-              : Theme.of(context).colorScheme.onSurfaceVariant,
+          // backgroundColor: business.isActive 
+          //     ? AppTheme.primaryColor 
+          //     : Theme.of(context).colorScheme.onSurfaceVariant,
           child: Icon(
             Icons.business,
-            color: business.isActive 
-                ? Colors.white 
-                : Theme.of(context).colorScheme.surface,
+            // color: business.isActive 
+            //     ? Colors.white 
+            //     : Theme.of(context).colorScheme.surface,
           ),
         ),
         title: Text(
           business.name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: business.isActive 
-                ? null 
-                : Theme.of(context).colorScheme.onSurfaceVariant,
+            // color: business.isActive 
+            //     ? null 
+            //     : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         subtitle: Column(

@@ -212,12 +212,12 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     final navigationItems = _navigationItems;
-    
+    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
+    debugPrint('[MainScaffold] build, scaffoldBackgroundColor: $scaffoldBg');
     // Adjust current index if it's out of bounds due to dynamic items
     if (_currentIndex >= navigationItems.length) {
       _currentIndex = 0;
     }
-    
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(

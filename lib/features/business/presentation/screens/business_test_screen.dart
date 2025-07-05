@@ -104,7 +104,7 @@ class _BusinessTestScreenState extends State<BusinessTestScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Business API Test'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

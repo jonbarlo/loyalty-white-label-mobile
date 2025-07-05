@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/providers/punch_card_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/models/punch_card.dart';
+import '../../../../core/services/global_theme_service.dart';
 
 class PunchCardsScreen extends StatefulWidget {
   const PunchCardsScreen({super.key});
@@ -26,102 +28,131 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Punch Cards'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Get dynamic background color from theme
+        final dynamicBg = GlobalThemeService.getBackgroundColor(context, pageName: 'PunchCards');
+        final isLoading = GlobalThemeService.isLoading(context);
+        debugPrint('[PunchCardsScreen] Dynamic background color: $dynamicBg, isLoading: $isLoading');
+        
+        return Scaffold(
+          backgroundColor: dynamicBg ?? Colors.orange, // Fallback to orange if no theme
+          appBar: AppBar(
+            title: const Text('Punch Cards'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: _loadData,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child: Consumer<PunchCardProvider>(
-          builder: (context, provider, child) {
-            if (provider.isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            if (provider.error != null) {
-              return Center(
+          body: isLoading 
+            ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: AppTheme.errorColor,
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
-                      'Error loading punch cards',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.textPrimary,
+                      'Loading theme...',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      provider.error!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _loadData,
-                      child: const Text('Retry'),
                     ),
                   ],
                 ),
-              );
-            }
+              )
+            : RefreshIndicator(
+                onRefresh: _loadData,
+                child: Consumer<PunchCardProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
 
-            if (provider.myPunchCards.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.card_giftcard_outlined,
-                      size: 64,
-                      color: AppTheme.textTertiary,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No punch cards yet',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'You don\'t have any punch cards yet.\nVisit a participating business to get started!',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    if (provider.error != null) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: AppTheme.errorColor,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading punch cards',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              provider.error!,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadData,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (provider.myPunchCards.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.card_giftcard_outlined,
+                              size: 64,
+                              color: AppTheme.textTertiary,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No punch cards yet',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'You don\'t have any punch cards yet.\nVisit a participating business to get started!',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: provider.myPunchCards.length,
+                      itemBuilder: (context, index) {
+                        final punchCard = provider.myPunchCards[index];
+                        return _buildPunchCardItem(punchCard, provider);
+                      },
+                    );
+                  },
                 ),
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: provider.myPunchCards.length,
-              itemBuilder: (context, index) {
-                final punchCard = provider.myPunchCards[index];
-                return _buildPunchCardItem(punchCard, provider);
-              },
-            );
-          },
-        ),
-      ),
+              ),
+        );
+      },
     );
   }
 
@@ -206,7 +237,7 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                   const SizedBox(height: 8),
                   LinearProgressIndicator(
                     value: progress,
-                    backgroundColor: AppTheme.dividerColor,
+                    // backgroundColor: AppTheme.dividerColor,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       isRedeemed ? AppTheme.successColor : AppTheme.primaryColor,
                     ),

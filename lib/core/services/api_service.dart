@@ -313,4 +313,6 @@ class ApiService {
         return Exception('Network error occurred. Please try again.');
     }
   }
+
+  Dio get dio => _dio;
 } 

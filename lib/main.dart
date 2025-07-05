@@ -14,6 +14,10 @@ import 'core/providers/notification_provider.dart';
 import 'core/services/api_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/config/app_config.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/services/theme_service.dart';
+import 'core/providers/theme_loader.dart';
+import 'core/services/storage_test_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +29,10 @@ void main() async {
   final storageService = StorageService();
   await storageService.init();
   
+  // Test SharedPreferences functionality
+  await StorageTestService.testSharedPreferences();
+  await StorageTestService.listAllKeys();
+  
   final apiService = ApiService();
   
   runApp(MyApp(
@@ -33,7 +41,7 @@ void main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final StorageService storageService;
   final ApiService apiService;
 
@@ -44,39 +52,58 @@ class MyApp extends StatelessWidget {
   });
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (context) => AuthProvider(apiService, storageService),
+          create: (context) => AuthProvider(widget.apiService, widget.storageService),
         ),
         ChangeNotifierProvider(
-          create: (context) => BusinessProvider(apiService),
+          create: (context) => BusinessProvider(widget.apiService),
         ),
         ChangeNotifierProvider(
-          create: (context) => PunchCardProvider(apiService),
+          create: (context) => PunchCardProvider(widget.apiService),
         ),
         ChangeNotifierProvider(
-          create: (context) => PointTransactionProvider(apiService),
+          create: (context) => PointTransactionProvider(widget.apiService),
         ),
         ChangeNotifierProvider(
-          create: (context) => RewardProvider(apiService),
+          create: (context) => RewardProvider(widget.apiService),
         ),
         ChangeNotifierProvider(
-          create: (context) => NotificationProvider(apiService),
+          create: (context) => NotificationProvider(widget.apiService),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ThemeProvider(ThemeService(widget.apiService.dio)),
         ),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final router = AppRouter(authProvider).router;
           
-          return MaterialApp.router(
-            title: AppConfig.appName,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.system,
-            routerConfig: router,
-            debugShowCheckedModeBanner: AppConfig.debugMode,
+          return ThemeLoader(
+            businessId: '1',
+            child: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                final dynamicBg = themeProvider.theme?.backgroundColor;
+                debugPrint('[main.dart] dynamicBg: $dynamicBg');
+                return MaterialApp.router(
+                  title: AppConfig.appName,
+                  theme: AppTheme.darkTheme.copyWith(
+                    scaffoldBackgroundColor: dynamicBg ?? AppTheme.darkTheme.scaffoldBackgroundColor,
+                  ),
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: ThemeMode.dark,
+                  routerConfig: router,
+                  debugShowCheckedModeBanner: AppConfig.debugMode,
+                );
+              },
+            ),
           );
         },
       ),

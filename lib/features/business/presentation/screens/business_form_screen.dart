@@ -98,7 +98,7 @@ class _BusinessFormScreenState extends State<BusinessFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(businessProvider.error ?? 'Operation failed'),
-          backgroundColor: AppTheme.errorColor,
+          // backgroundColor: AppTheme.errorColor,
         ),
       );
     }
@@ -111,7 +111,7 @@ class _BusinessFormScreenState extends State<BusinessFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditMode ? 'Edit Business' : 'Create Business'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Form(
         key: _formKey,

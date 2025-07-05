@@ -26,6 +26,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // If Scaffold has backgroundColor: ... here, comment it out.
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
@@ -274,14 +275,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Notification marked as read'),
-          backgroundColor: AppTheme.successColor,
         ),
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(provider.error ?? 'Failed to mark notification as read'),
-          backgroundColor: AppTheme.errorColor,
         ),
       );
     }
@@ -315,7 +314,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('All notifications marked as read'),
-            backgroundColor: AppTheme.successColor,
           ),
         );
       }

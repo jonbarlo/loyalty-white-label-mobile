@@ -277,7 +277,7 @@ class _PunchCardDetailScreenState extends State<PunchCardDetailScreen> {
             // Progress Bar
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: AppTheme.dividerColor,
+              // backgroundColor: AppTheme.dividerColor,
               valueColor: AlwaysStoppedAnimation<Color>(
                 _punchCard!.redeemed ? AppTheme.successColor : AppTheme.primaryColor,
               ),

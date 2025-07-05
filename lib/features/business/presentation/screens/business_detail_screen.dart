@@ -32,7 +32,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Business Details'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           Consumer2<BusinessProvider, AuthProvider>(
             builder: (context, businessProvider, authProvider, child) {
