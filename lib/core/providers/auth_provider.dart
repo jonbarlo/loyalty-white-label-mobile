@@ -132,4 +132,7 @@ class AuthProvider with ChangeNotifier {
   bool get isAdmin => _user?.role == 'admin';
   bool get isBusinessOwner => _user?.role == 'business_owner';
   bool get isCustomer => _user?.role == 'customer';
+
+  // Public getter for the auth token
+  String? get token => _storageService.getAuthToken();
 } 

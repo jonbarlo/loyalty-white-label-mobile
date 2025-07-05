@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import 'dart:convert';
 import '../models/business_theme.dart';
 import '../services/theme_service.dart';
@@ -23,6 +24,9 @@ class ThemeProvider with ChangeNotifier {
   BusinessTheme? get theme => _theme;
   bool get isLoading => _isLoading;
   bool get hasError => _hasError;
+  
+  // Get the dio instance from the theme service
+  Dio get dio => _themeService.dio;
 
   @visibleForTesting
   set theme(BusinessTheme? value) {
@@ -205,5 +209,13 @@ class ThemeProvider with ChangeNotifier {
       _theme = cachedTheme;
       notifyListeners();
     }
+  }
+
+  /// Set theme directly (used after saving)
+  void setTheme(BusinessTheme theme) {
+    debugPrint('[ThemeProvider] setTheme called with: ${theme.toJson()}');
+    _theme = theme;
+    _cacheTheme(theme); // Cache the new theme
+    notifyListeners();
   }
 } 

@@ -6,7 +6,7 @@ class Business {
   final String? phone;
   final String? email;
   final String? website;
-  final String? logo;
+  final String? logoUrl;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -19,7 +19,7 @@ class Business {
     this.phone,
     this.email,
     this.website,
-    this.logo,
+    this.logoUrl,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
@@ -34,7 +34,7 @@ class Business {
       phone: json['phone'],
       email: json['email'],
       website: json['website'],
-      logo: json['logo'],
+      logoUrl: json['logoUrl'],
       isActive: json['isActive'] ?? true,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
@@ -50,7 +50,7 @@ class Business {
       'phone': phone,
       'email': email,
       'website': website,
-      'logo': logo,
+      'logoUrl': logoUrl,
       'isActive': isActive,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -65,7 +65,7 @@ class Business {
     String? phone,
     String? email,
     String? website,
-    String? logo,
+    String? logoUrl,
     bool? isActive,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -78,7 +78,7 @@ class Business {
       phone: phone ?? this.phone,
       email: email ?? this.email,
       website: website ?? this.website,
-      logo: logo ?? this.logo,
+      logoUrl: logoUrl ?? this.logoUrl,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

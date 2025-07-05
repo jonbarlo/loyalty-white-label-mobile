@@ -18,6 +18,13 @@ class ProfileScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.pink,
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: Text(
               'Profile',
               style: TextStyle(

@@ -35,6 +35,13 @@ class _PointsScreenState extends State<PointsScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.red,
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: Text(
               'Points',
               style: TextStyle(

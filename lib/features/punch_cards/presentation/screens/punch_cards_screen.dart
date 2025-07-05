@@ -38,6 +38,13 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.orange, // Fallback to orange if no theme
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
             title: Text(
               'Punch Cards',
               style: TextStyle(

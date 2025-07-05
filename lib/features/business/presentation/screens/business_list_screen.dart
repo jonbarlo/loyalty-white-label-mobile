@@ -59,6 +59,14 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
             actions: [
               IconButton(
                 icon: Icon(
+                  Icons.palette,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
+                onPressed: () => context.go('/theme-editor'),
+                tooltip: 'Theme Editor',
+              ),
+              IconButton(
+                icon: Icon(
                   Icons.bug_report,
                   color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
                 ),

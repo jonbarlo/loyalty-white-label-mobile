@@ -5,6 +5,8 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/services/global_theme_service.dart';
+import '../../../../core/providers/business_image_provider.dart';
+import '../../../../core/providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,6 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load business image for business ID 1 (default)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BusinessImageProvider>().loadBusinessImage(1);
+    });
   }
 
   Future<void> _login() async {
@@ -110,10 +121,54 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Logo and Title
-                          const Icon(
-                            Icons.card_giftcard,
-                            size: 80,
-                            color: AppTheme.primaryColor,
+                          Consumer<BusinessImageProvider>(
+                            builder: (context, businessImageProvider, child) {
+                              final imageUrl = businessImageProvider.getBusinessImage(1);
+                              final isLoading = businessImageProvider.isLoading(1);
+                              
+                              if (isLoading) {
+                                return const SizedBox(
+                                  height: 80,
+                                  width: 80,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                );
+                              }
+                              
+                              if (imageUrl != null && imageUrl.isNotEmpty) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    GlobalThemeService.getBorderRadius(context) ?? 12,
+                                  ),
+                                  child: Image.network(
+                                    imageUrl,
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      debugPrint('[LoginScreen] Error loading business image: $error');
+                                      return _buildFallbackIcon();
+                                    },
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return SizedBox(
+                                        height: 80,
+                                        width: 80,
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress.expectedTotalBytes != null
+                                              ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                              : null,
+                                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
+                              
+                              return _buildFallbackIcon();
+                            },
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -261,6 +316,25 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildFallbackIcon() {
+    // Use a default business logo when API call fails
+    return Container(
+      height: 80,
+      width: 80,
+      decoration: BoxDecoration(
+        color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
+      child: Icon(
+        Icons.business,
+        size: 40,
+        color: Colors.white,
+      ),
     );
   }
 } 

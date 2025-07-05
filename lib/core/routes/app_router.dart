@@ -14,6 +14,7 @@ import '../../features/business/presentation/screens/business_list_screen.dart';
 import '../../features/business/presentation/screens/business_detail_screen.dart';
 import '../../features/business/presentation/screens/business_form_screen.dart';
 import '../../features/business/presentation/screens/business_test_screen.dart';
+import '../../features/theme_editor/presentation/screens/theme_editor_screen.dart';
 import '../providers/auth_provider.dart';
 import '../../core/models/business.dart';
 
@@ -120,6 +121,14 @@ class AppRouter {
             path: '/businesses/test',
             name: 'business-test',
             builder: (context, state) => const BusinessTestScreen(),
+          ),
+          GoRoute(
+            path: '/theme-editor',
+            name: 'theme-editor',
+            builder: (context, state) {
+              final businessId = state.uri.queryParameters['businessId'];
+              return ThemeEditorScreen(businessId: businessId);
+            },
           ),
           GoRoute(
             path: '/businesses/:id/edit',
