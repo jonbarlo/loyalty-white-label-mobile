@@ -24,10 +24,16 @@ class AppConfig {
   // Initialize environment variables
   static Future<void> initialize() async {
     try {
-      await dotenv.load(fileName: 'env.example');
+      await dotenv.load(fileName: '.env');
     } catch (e) {
-      // If .env file doesn't exist, use default values
-      print('Warning: Environment file not found, using default values');
+      // If .env file doesn't exist, try env.example as fallback
+      try {
+        await dotenv.load(fileName: 'env.example');
+        print('Warning: Using env.example as fallback');
+      } catch (e2) {
+        // If neither file exists, use default values
+        print('Warning: No environment file found, using default values');
+      }
     }
   }
 

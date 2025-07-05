@@ -54,7 +54,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - env.example
+    - .env
   
   fonts:
     - family: RobotoFlex
