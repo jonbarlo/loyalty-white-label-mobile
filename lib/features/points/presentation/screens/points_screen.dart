@@ -35,10 +35,23 @@ class _PointsScreenState extends State<PointsScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.red,
           appBar: AppBar(
-            title: const Text('Points'),
+            title: Text(
+              'Points',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
+                icon: Icon(
+                  Icons.refresh,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
                 onPressed: _loadData,
               ),
             ],
@@ -76,40 +89,61 @@ class _PointsScreenState extends State<PointsScreen> {
                             children: [
                               Icon(
                                 Icons.error_outline,
-                                size: 64,
-                                color: AppTheme.errorColor,
+                                size: GlobalThemeService.getIconSize(context) ?? 64,
+                                color: GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                               Text(
                                 'Error loading points',
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: AppTheme.textPrimary,
+                                  color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                                  fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                               Text(
                                 provider.error!,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
+                                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                               ElevatedButton(
                                 onPressed: _loadData,
-                                child: const Text('Retry'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: GlobalThemeService.getDefaultPadding(context) ?? 24,
+                                    vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      GlobalThemeService.getBorderRadius(context) ?? 8,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Retry',
+                                  style: TextStyle(
+                                    fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         );
                       }
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildPointsBalanceCard(provider),
-                            const SizedBox(height: 24),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
                             _buildTransactionHistory(provider),
                           ],
                         ),
@@ -125,8 +159,15 @@ class _PointsScreenState extends State<PointsScreen> {
   Widget _buildPointsBalanceCard(PointTransactionProvider provider) {
     final totalPoints = provider.getTotalPoints();
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 24),
         child: Column(
           children: [
             Row(
@@ -134,45 +175,47 @@ class _PointsScreenState extends State<PointsScreen> {
               children: [
                 Icon(
                   Icons.stars,
-                  size: 48,
-                  color: AppTheme.primaryColor,
+                  size: GlobalThemeService.getIconSize(context) ?? 48,
+                  color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Total Points',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppTheme.textSecondary,
+                        color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                        fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                       ),
                     ),
                     Text(
                       '$totalPoints',
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryColor,
+                        color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                        fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 32,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
             Row(
               children: [
                 Expanded(
                   child: _buildStatItem(
                     'Earned',
                     '${provider.getTransactionsByType('earn').fold(0, (sum, t) => sum + t.points)}',
-                    AppTheme.successColor,
+                    GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
                     'Redeemed',
                     '${provider.getTransactionsByType('redeem').fold(0, (sum, t) => sum + t.points)}',
-                    AppTheme.warningColor,
+                    GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor,
                   ),
                 ),
               ],
@@ -191,13 +234,15 @@ class _PointsScreenState extends State<PointsScreen> {
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
             color: color,
+            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 20,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: AppTheme.textSecondary,
+            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
           ),
         ),
       ],
@@ -213,33 +258,43 @@ class _PointsScreenState extends State<PointsScreen> {
           'Transaction History',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
         if (transactions.isEmpty)
           Card(
+            color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                GlobalThemeService.getBorderRadius(context) ?? 12,
+              ),
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 20),
               child: Column(
                 children: [
                   Icon(
                     Icons.history,
-                    size: 48,
-                    color: AppTheme.textTertiary,
+                    size: GlobalThemeService.getIconSize(context) ?? 48,
+                    color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                   Text(
                     'No transactions yet',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTheme.textSecondary,
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                   Text(
                     'Your point transactions will appear here',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textTertiary,
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -251,9 +306,19 @@ class _PointsScreenState extends State<PointsScreen> {
           Column(
             children: transactions.map((transaction) {
               return Card(
-                margin: const EdgeInsets.only(bottom: 8),
+                color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+                elevation: GlobalThemeService.getElevation(context) ?? 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    GlobalThemeService.getBorderRadius(context) ?? 8,
+                  ),
+                ),
+                margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 8),
                 child: ListTile(
                   leading: CircleAvatar(
+                    backgroundColor: transaction.type == 'earn'
+                        ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                        : (GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor),
                     child: Icon(
                       transaction.type == 'earn' ? Icons.add : Icons.remove,
                       color: Colors.white,
@@ -261,14 +326,17 @@ class _PointsScreenState extends State<PointsScreen> {
                   ),
                   title: Text(
                     transaction.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
+                      color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                     ),
                   ),
                   subtitle: Text(
                     '${transaction.type.toUpperCase()} • ${transaction.points} points',
                     style: TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                      fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                     ),
                   ),
                   trailing: Text(
@@ -276,8 +344,9 @@ class _PointsScreenState extends State<PointsScreen> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: transaction.type == 'earn'
-                          ? AppTheme.successColor
-                          : AppTheme.warningColor,
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getErrorColor(context) ?? AppTheme.warningColor),
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                     ),
                   ),
                 ),

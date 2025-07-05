@@ -18,7 +18,17 @@ class ProfileScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.pink,
           appBar: AppBar(
-            title: const Text('Profile'),
+            title: Text(
+              'Profile',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
           ),
           body: isLoading
               ? const Center(
@@ -47,15 +57,15 @@ class ProfileScreen extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
                     return SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
                       child: Column(
                         children: [
                           _buildProfileHeader(context, user),
-                          const SizedBox(height: 24),
+                          SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
                           _buildUserInfo(context, user),
-                          const SizedBox(height: 24),
+                          SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
                           _buildSettingsSection(context),
-                          const SizedBox(height: 24),
+                          SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
                           _buildLogoutButton(context, authProvider),
                         ],
                       ),
@@ -69,50 +79,63 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileHeader(BuildContext context, user) {
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 24),
         child: Column(
           children: [
             CircleAvatar(
               radius: 50,
+              backgroundColor: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
               child: Text(
                 user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                style: const TextStyle(
-                  fontSize: 32,
+                style: TextStyle(
+                  fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
             Text(
               user.name,
-              style: const TextStyle(
-                fontSize: 24,
+              style: TextStyle(
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
             Text(
               user.email,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppTheme.textSecondary,
+              style: TextStyle(
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                vertical: GlobalThemeService.getDefaultPadding(context) ?? 6,
+              ),
               decoration: BoxDecoration(
                 color: _getRoleColor(user.role),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(
+                  GlobalThemeService.getBorderRadius(context) ?? 16,
+                ),
               ),
               child: Text(
                 user.role.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -125,20 +148,31 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildUserInfo(BuildContext context, user) {
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
             child: Text(
               'Account Information',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
               ),
             ),
           ),
-          const Divider(height: 1),
+          Divider(
+            height: 1,
+            color: GlobalThemeService.getDividerColor(context) ?? AppTheme.dividerColor,
+          ),
           _buildInfoItem('User ID', '${user.id}', context),
           _buildInfoItem('Business ID', user.businessId?.toString() ?? 'N/A', context),
           _buildInfoItem('Email', user.email, context),
@@ -150,12 +184,19 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem(String label, String value, [BuildContext? context]) {
-    final isDark = context != null && Theme.of(context).brightness == Brightness.dark;
-    final labelColor = isDark ? Colors.white70 : AppTheme.textSecondary;
-    final valueColor = isDark ? Colors.white : AppTheme.textPrimary;
+  Widget _buildInfoItem(String label, String value, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark 
+        ? Colors.white70 
+        : (GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary);
+    final valueColor = isDark 
+        ? Colors.white 
+        : (GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: GlobalThemeService.getDefaultPadding(context) ?? 16,
+        vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -165,6 +206,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 color: labelColor,
                 fontWeight: FontWeight.w500,
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
               ),
             ),
           ),
@@ -175,6 +217,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 color: valueColor,
                 fontWeight: FontWeight.w600,
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
               ),
             ),
           ),
@@ -185,26 +228,38 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildSettingsSection(BuildContext context) {
     return Card(
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
             child: Text(
               'Settings',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
               ),
             ),
           ),
-          const Divider(height: 1),
+          Divider(
+            height: 1,
+            color: GlobalThemeService.getDividerColor(context) ?? AppTheme.dividerColor,
+          ),
           _buildSettingItem(
             icon: Icons.lock_outline,
             title: 'Change Password',
             onTap: () {
               // Implement change password
             },
+            context: context,
           ),
           _buildSettingItem(
             icon: Icons.delete_outline,
@@ -212,6 +267,7 @@ class ProfileScreen extends StatelessWidget {
             onTap: () {
               // Implement delete account
             },
+            context: context,
           ),
         ],
       ),
@@ -222,11 +278,25 @@ class ProfileScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
+      leading: Icon(
+        icon,
+        color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+        size: GlobalThemeService.getIconSize(context) ?? 24,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+        ),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+      ),
       onTap: onTap,
     );
   }
@@ -235,8 +305,30 @@ class ProfileScreen extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        icon: const Icon(Icons.logout),
-        label: const Text('Logout'),
+        icon: Icon(
+          Icons.logout,
+          size: GlobalThemeService.getIconSize(context) ?? 24,
+        ),
+        label: Text(
+          'Logout',
+          style: TextStyle(
+            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(
+            horizontal: GlobalThemeService.getDefaultPadding(context) ?? 24,
+            vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              GlobalThemeService.getBorderRadius(context) ?? 8,
+            ),
+          ),
+        ),
         onPressed: () => _showLogoutDialog(context, authProvider),
       ),
     );
@@ -279,4 +371,4 @@ class ProfileScreen extends StatelessWidget {
       }
     }
   }
-} 
+}

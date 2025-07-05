@@ -38,10 +38,23 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.orange, // Fallback to orange if no theme
           appBar: AppBar(
-            title: const Text('Punch Cards'),
+            title: Text(
+              'Punch Cards',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
+                icon: Icon(
+                  Icons.refresh,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
                 onPressed: _loadData,
               ),
             ],
@@ -82,28 +95,49 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                           children: [
                             Icon(
                               Icons.error_outline,
-                              size: 64,
-                              color: AppTheme.errorColor,
+                              size: GlobalThemeService.getIconSize(context) ?? 64,
+                              color: GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                             Text(
                               'Error loading punch cards',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: AppTheme.textPrimary,
+                                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                             Text(
                               provider.error!,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
+                                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                             ElevatedButton(
                               onPressed: _loadData,
-                              child: const Text('Retry'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: GlobalThemeService.getDefaultPadding(context) ?? 24,
+                                  vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    GlobalThemeService.getBorderRadius(context) ?? 8,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'Retry',
+                                style: TextStyle(
+                                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -117,21 +151,23 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                           children: [
                             Icon(
                               Icons.card_giftcard_outlined,
-                              size: 64,
-                              color: AppTheme.textTertiary,
+                              size: GlobalThemeService.getIconSize(context) ?? 64,
+                              color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                             Text(
                               'No punch cards yet',
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: AppTheme.textPrimary,
+                                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                             Text(
                               'You don\'t have any punch cards yet.\nVisit a participating business to get started!',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
+                                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -161,12 +197,21 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
     final progress = punchCard.punches / 10; // Assuming 10 punches to complete
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
+      margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 16),
       child: InkWell(
         onTap: () => context.go('/punch-cards/${punchCard.id}'),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -180,37 +225,46 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                           'Punch Card #${punchCard.id}',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
+                            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
                         Text(
                           'Program ID: ${punchCard.rewardProgramId}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                      vertical: GlobalThemeService.getDefaultPadding(context) ?? 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: isRedeemed ? AppTheme.successColor : AppTheme.primaryColor,
-                      borderRadius: BorderRadius.circular(16),
+                      color: isRedeemed 
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor),
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 16,
+                      ),
                     ),
                     child: Text(
                       isRedeemed ? 'REDEEMED' : 'ACTIVE',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
               
               // Progress Bar
               Column(
@@ -223,28 +277,32 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                         'Progress',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
+                          color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                         ),
                       ),
                       Text(
                         '${punchCard.punches}/10',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppTheme.textSecondary,
+                          color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                   LinearProgressIndicator(
                     value: progress,
-                    // backgroundColor: AppTheme.dividerColor,
+                    backgroundColor: GlobalThemeService.getDividerColor(context) ?? AppTheme.dividerColor,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isRedeemed ? AppTheme.successColor : AppTheme.primaryColor,
+                      isRedeemed 
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
 
               // Action Buttons
               if (!isRedeemed) ...[
@@ -253,18 +311,64 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _earnPunch(punchCard.id, provider),
-                        icon: const Icon(Icons.add),
-                        label: const Text('Earn Punch'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                          side: BorderSide(
+                            color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: GlobalThemeService.getDefaultPadding(context) ?? 16,
+                            vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              GlobalThemeService.getBorderRadius(context) ?? 8,
+                            ),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.add,
+                          size: GlobalThemeService.getIconSize(context) ?? 20,
+                        ),
+                        label: Text(
+                          'Earn Punch',
+                          style: TextStyle(
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 12),
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: punchCard.punches >= 10 
                             ? () => _redeemCard(punchCard.id, provider)
                             : null,
-                        icon: const Icon(Icons.redeem),
-                        label: const Text('Redeem'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: GlobalThemeService.getDefaultPadding(context) ?? 16,
+                            vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              GlobalThemeService.getBorderRadius(context) ?? 8,
+                            ),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.redeem,
+                          size: GlobalThemeService.getIconSize(context) ?? 20,
+                        ),
+                        label: Text(
+                          'Redeem',
+                          style: TextStyle(
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -272,26 +376,33 @@ class _PunchCardsScreenState extends State<PunchCardsScreen> {
               ] else ...[
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppTheme.successColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.successColor),
+                    color: (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      GlobalThemeService.getBorderRadius(context) ?? 8,
+                    ),
+                    border: Border.all(
+                      color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.check_circle,
-                        color: AppTheme.successColor,
-                        size: 20,
+                        color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
+                        size: GlobalThemeService.getIconSize(context) ?? 20,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 8),
                       Text(
                         'Card has been redeemed!',
                         style: TextStyle(
-                          color: AppTheme.successColor,
+                          color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
                           fontWeight: FontWeight.w600,
+                          fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                         ),
                       ),
                     ],

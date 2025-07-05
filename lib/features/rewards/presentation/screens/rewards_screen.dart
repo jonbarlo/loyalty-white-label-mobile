@@ -35,10 +35,23 @@ class _RewardsScreenState extends State<RewardsScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.teal,
           appBar: AppBar(
-            title: const Text('Rewards'),
+            title: Text(
+              'Rewards',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
+                icon: Icon(
+                  Icons.refresh,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
                 onPressed: _loadData,
               ),
             ],
@@ -76,28 +89,49 @@ class _RewardsScreenState extends State<RewardsScreen> {
                             children: [
                               Icon(
                                 Icons.error_outline,
-                                size: 64,
-                                color: AppTheme.errorColor,
+                                size: GlobalThemeService.getIconSize(context) ?? 64,
+                                color: GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                               Text(
                                 'Error loading rewards',
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: AppTheme.textPrimary,
+                                  color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                                  fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                               Text(
                                 provider.error!,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
+                                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                               ElevatedButton(
                                 onPressed: _loadData,
-                                child: const Text('Retry'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: GlobalThemeService.getDefaultPadding(context) ?? 24,
+                                    vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      GlobalThemeService.getBorderRadius(context) ?? 8,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Retry',
+                                  style: TextStyle(
+                                    fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -110,21 +144,23 @@ class _RewardsScreenState extends State<RewardsScreen> {
                             children: [
                               Icon(
                                 Icons.redeem_outlined,
-                                size: 64,
-                                color: AppTheme.textTertiary,
+                                size: GlobalThemeService.getIconSize(context) ?? 64,
+                                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textTertiary,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                               Text(
                                 'No rewards available',
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: AppTheme.textPrimary,
+                                  color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                                  fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 24,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                               Text(
                                 'Check back later for new rewards!',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
+                                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -133,7 +169,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                         );
                       }
                       return ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
                         itemCount: provider.rewards.length,
                         itemBuilder: (context, index) {
                           final reward = provider.rewards[index];
@@ -150,12 +186,21 @@ class _RewardsScreenState extends State<RewardsScreen> {
 
   Widget _buildRewardItem(reward) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
+      margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 16),
       child: InkWell(
         onTap: () {}, // Implement reward details if needed
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -169,47 +214,57 @@ class _RewardsScreenState extends State<RewardsScreen> {
                           reward.name,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
+                            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
                         Text(
                           'Program ID: ${reward.rewardProgramId}',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                      vertical: GlobalThemeService.getDefaultPadding(context) ?? 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: reward.isActive ? AppTheme.successColor : AppTheme.errorColor,
-                      borderRadius: BorderRadius.circular(16),
+                      color: reward.isActive 
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor),
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 16,
+                      ),
                     ),
                     child: Text(
                       reward.isActive ? 'ACTIVE' : 'INACTIVE',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 12),
               if (reward.description.isNotEmpty) ...[
                 Text(
                   reward.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
+                    color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                    fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 12),
               ],
               Row(
                 children: [
@@ -219,11 +274,17 @@ class _RewardsScreenState extends State<RewardsScreen> {
                       children: [
                         Text(
                           'Type: ${reward.type}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
+                          ),
                         ),
                         Text(
                           'Value: ${reward.value}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
+                          ),
                         ),
                       ],
                     ),
@@ -231,8 +292,11 @@ class _RewardsScreenState extends State<RewardsScreen> {
                   Text(
                     reward.isActive ? 'Available' : 'Unavailable',
                     style: TextStyle(
-                      color: reward.isActive ? AppTheme.successColor : AppTheme.errorColor,
+                      color: reward.isActive 
+                          ? (GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor)
+                          : (GlobalThemeService.getErrorColor(context) ?? AppTheme.errorColor),
                       fontWeight: FontWeight.bold,
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
                     ),
                   ),
                 ],

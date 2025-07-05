@@ -45,11 +45,23 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
         return Scaffold(
           backgroundColor: dynamicBg ?? Colors.purple, // Fallback to purple if no theme
           appBar: AppBar(
-            title: const Text('Businesses'),
-            // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(
+              'Businesses',
+              style: TextStyle(
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
+            foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+            elevation: GlobalThemeService.getElevation(context) ?? 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.bug_report),
+                icon: Icon(
+                  Icons.bug_report,
+                  color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                ),
                 onPressed: () => context.go('/businesses/test'),
                 tooltip: 'Test API',
               ),
@@ -57,7 +69,10 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
                 builder: (context, authProvider, child) {
                   if (authProvider.isAdmin) {
                     return IconButton(
-                      icon: const Icon(Icons.add),
+                      icon: Icon(
+                        Icons.add,
+                        color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
+                      ),
                       onPressed: () => context.go('/businesses/create'),
                     );
                   }
@@ -89,41 +104,86 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
         children: [
           // Search and Filter Bar
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16.0),
             child: Column(
               children: [
                 TextField(
                   controller: _searchController,
+                  style: TextStyle(
+                    color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                    fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Search businesses...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: TextStyle(
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                      fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                    ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear),
+                            icon: Icon(
+                              Icons.clear,
+                              color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               setState(() {});
                             },
                           )
                         : null,
+                    filled: true,
+                    fillColor: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 12,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 12,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 12,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                        width: 2,
+                      ),
                     ),
                   ),
                   onChanged: (value) => setState(() {}),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                 Row(
                   children: [
                     Checkbox(
                       value: _showOnlyActive,
+                      activeColor: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
                       onChanged: (value) {
                         setState(() {
                           _showOnlyActive = value ?? true;
                         });
                       },
                     ),
-                    const Text('Show only active businesses'),
+                    Text(
+                      'Show only active businesses',
+                      style: TextStyle(
+                        color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                        fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -145,24 +205,49 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
                       children: [
                         Icon(
                           Icons.error_outline,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.error,
+                          size: GlobalThemeService.getIconSize(context) ?? 64,
+                          color: GlobalThemeService.getErrorColor(context) ?? Theme.of(context).colorScheme.error,
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                         Text(
                           'Error loading businesses',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 20,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                         Text(
                           businessProvider.error!,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                         ElevatedButton(
                           onPressed: () => businessProvider.loadBusinesses(),
-                          child: const Text('Retry'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: GlobalThemeService.getDefaultPadding(context) ?? 24,
+                              vertical: GlobalThemeService.getDefaultPadding(context) ?? 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                GlobalThemeService.getBorderRadius(context) ?? 8,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Retry',
+                            style: TextStyle(
+                              fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -188,18 +273,24 @@ class _BusinessListScreenState extends State<BusinessListScreen> {
                       children: [
                         Icon(
                           Icons.business_outlined,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          size: GlobalThemeService.getIconSize(context) ?? 64,
+                          color: GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 16),
                         Text(
                           'No businesses found',
-                          style: Theme.of(context).textTheme.headlineSmall,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+                            fontSize: GlobalThemeService.getFontSizeHeading(context) ?? 20,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 8),
                         Text(
                           'Try adjusting your search or filters',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
+                          ),
                         ),
                       ],
                     ),
@@ -233,26 +324,34 @@ class _BusinessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+      elevation: GlobalThemeService.getElevation(context) ?? 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(
+          GlobalThemeService.getBorderRadius(context) ?? 12,
+        ),
+      ),
+      margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 12),
       child: ListTile(
         leading: CircleAvatar(
-          // backgroundColor: business.isActive 
-          //     ? AppTheme.primaryColor 
-          //     : Theme.of(context).colorScheme.onSurfaceVariant,
+          backgroundColor: business.isActive 
+              ? (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor)
+              : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
           child: Icon(
             Icons.business,
-            // color: business.isActive 
-            //     ? Colors.white 
-            //     : Theme.of(context).colorScheme.surface,
+            color: business.isActive 
+                ? Colors.white 
+                : (GlobalThemeService.getSurfaceColor(context) ?? Theme.of(context).colorScheme.surface),
           ),
         ),
         title: Text(
           business.name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            // color: business.isActive 
-            //     ? null 
-            //     : Theme.of(context).colorScheme.onSurfaceVariant,
+            color: business.isActive 
+                ? (GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary)
+                : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
+            fontSize: GlobalThemeService.getFontSizeBody(context) ?? 16,
           ),
         ),
         subtitle: Column(
@@ -263,25 +362,30 @@ class _BusinessCard extends StatelessWidget {
                 business.description!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                  fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
+                ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
             ],
             if (business.address != null) ...[
               Row(
                 children: [
                   Icon(
                     Icons.location_on_outlined,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    size: GlobalThemeService.getIconSize(context) ?? 16,
+                    color: GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 4),
                   Expanded(
                     child: Text(
                       business.address!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                       ),
                     ),
                   ),
@@ -289,18 +393,23 @@ class _BusinessCard extends StatelessWidget {
               ),
             ],
             if (!business.isActive) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: EdgeInsets.symmetric(
+                  horizontal: GlobalThemeService.getDefaultPadding(context) ?? 8,
+                  vertical: GlobalThemeService.getDefaultPadding(context) ?? 2,
+                ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  color: GlobalThemeService.getErrorColor(context) ?? Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(
+                    GlobalThemeService.getBorderRadius(context) ?? 12,
+                  ),
                 ),
                 child: Text(
                   'Inactive',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                    fontSize: 12,
+                    color: Colors.white,
+                    fontSize: GlobalThemeService.getFontSizeCaption(context) ?? 12,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -310,7 +419,7 @@ class _BusinessCard extends StatelessWidget {
         ),
         trailing: Icon(
           Icons.chevron_right,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         onTap: () => context.go('/businesses/${business.id}'),
       ),

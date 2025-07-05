@@ -22,19 +22,25 @@ import 'core/services/storage_test_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  debugPrint('[main.dart] Starting app initialization...');
+  
   // Initialize environment variables
   await AppConfig.initialize();
+  debugPrint('[main.dart] AppConfig initialized');
   
   // Initialize services
   final storageService = StorageService();
   await storageService.init();
+  debugPrint('[main.dart] StorageService initialized');
   
   // Test SharedPreferences functionality
   await StorageTestService.testSharedPreferences();
   await StorageTestService.listAllKeys();
   
   final apiService = ApiService();
+  debugPrint('[main.dart] ApiService initialized');
   
+  debugPrint('[main.dart] Running app...');
   runApp(MyApp(
     storageService: storageService,
     apiService: apiService,
@@ -57,7 +63,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+    debugPrint('[MyApp] initState called');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    debugPrint('[MyApp] build called');
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -84,6 +97,8 @@ class _MyAppState extends State<MyApp> {
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
+          debugPrint('[MyApp] AuthProvider state - isAuthenticated: ${authProvider.isAuthenticated}, isLoading: ${authProvider.isLoading}');
+          
           final router = AppRouter(authProvider).router;
           
           return ThemeLoader(
@@ -92,6 +107,9 @@ class _MyAppState extends State<MyApp> {
               builder: (context, themeProvider, child) {
                 final dynamicBg = themeProvider.theme?.backgroundColor;
                 debugPrint('[main.dart] dynamicBg: $dynamicBg');
+                debugPrint('[main.dart] themeProvider.isLoading: ${themeProvider.isLoading}');
+                debugPrint('[main.dart] themeProvider.hasError: ${themeProvider.hasError}');
+                
                 return MaterialApp.router(
                   title: AppConfig.appName,
                   theme: AppTheme.darkTheme.copyWith(
@@ -101,6 +119,10 @@ class _MyAppState extends State<MyApp> {
                   themeMode: ThemeMode.dark,
                   routerConfig: router,
                   debugShowCheckedModeBanner: AppConfig.debugMode,
+                  builder: (context, child) {
+                    debugPrint('[MyApp] MaterialApp.router builder called');
+                    return child ?? const SizedBox.shrink();
+                  },
                 );
               },
             ),
