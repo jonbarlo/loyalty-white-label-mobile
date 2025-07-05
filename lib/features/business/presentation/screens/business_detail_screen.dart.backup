@@ -52,66 +52,51 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
             backgroundColor: GlobalThemeService.getAppBarColor(context) ?? Colors.transparent,
             foregroundColor: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
             elevation: GlobalThemeService.getElevation(context) ?? 0,
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: GlobalThemeService.getTextPrimaryColor(context) ?? Colors.white,
-              ),
-              onPressed: () {
-                // Use GoRouter for proper navigation
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  // Fallback to business list if we can't pop
-                  context.go('/businesses');
-                }
-              },
-            ),
-            actions: [
-              Consumer2<BusinessProvider, AuthProvider>(
-                builder: (context, businessProvider, authProvider, child) {
-                  if (authProvider.isAdmin && businessProvider.selectedBusiness != null) {
-                    return PopupMenuButton<String>(
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'edit':
-                            context.go('/businesses/${widget.businessId}/edit');
-                            break;
-                          case 'delete':
-                            _showDeleteDialog(context, businessProvider);
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit),
-                              SizedBox(width: 8),
-                              Text('Edit'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ],
+        actions: [
+          Consumer2<BusinessProvider, AuthProvider>(
+            builder: (context, businessProvider, authProvider, child) {
+              if (authProvider.isAdmin && businessProvider.selectedBusiness != null) {
+                return PopupMenuButton<String>(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 'edit':
+                        context.go('/businesses/${widget.businessId}/edit');
+                        break;
+                      case 'delete':
+                        _showDeleteDialog(context, businessProvider);
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
           ),
-          body: isLoading 
+        ],
+      ),
+                body: isLoading 
             ? const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +140,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     );
                   }
 
-                  if (businessProvider.error != null) {
+                            if (businessProvider.error != null) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -212,7 +197,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     );
                   }
 
-                  final business = businessProvider.selectedBusiness;
+                            final business = businessProvider.selectedBusiness;
                   if (business == null) {
                     return Center(
                       child: Column(
@@ -237,7 +222,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     );
                   }
 
-                  return SingleChildScrollView(
+                            return SingleChildScrollView(
                     padding: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,42 +246,43 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                   );
                 },
               ),
-        );
-      },
-    );
-  }
-
-  void _showDeleteDialog(BuildContext context, BusinessProvider businessProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Business'),
-        content: Text(
-          'Are you sure you want to delete "${businessProvider.selectedBusiness?.name}"? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              context.pop();
-              final success = await businessProvider.deleteBusiness(widget.businessId);
-              if (success && mounted) {
-                context.go('/businesses');
-              }
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+          );
+        },
+      );
+    }
+
+    void _showDeleteDialog(BuildContext context, BusinessProvider businessProvider) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Business'),
+          content: Text(
+            'Are you sure you want to delete "${businessProvider.selectedBusiness?.name}"? This action cannot be undone.',
           ),
-        ],
-      ),
-    );
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final success = await businessProvider.deleteBusiness(widget.businessId);
+                if (success && mounted) {
+                  context.go('/businesses');
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      );
+    }
   }
-}
 
 class _BusinessHeader extends StatelessWidget {
   final Business business;
@@ -310,62 +296,19 @@ class _BusinessHeader extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            // Show logo if available, otherwise show default business icon
-            business.logoUrl != null && business.logoUrl!.isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: Image.network(
-                      business.logoUrl!,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return CircleAvatar(
-                          radius: 40,
-                          backgroundColor: business.isActive 
-                              ? AppTheme.primaryColor 
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                          child: Icon(
-                            Icons.business,
-                            size: 40,
-                            color: business.isActive 
-                                ? Colors.white 
-                                : Theme.of(context).colorScheme.surface,
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return CircleAvatar(
-                          radius: 40,
-                          backgroundColor: business.isActive 
-                              ? AppTheme.primaryColor 
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                : null,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              business.isActive ? Colors.white : Theme.of(context).colorScheme.surface,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : CircleAvatar(
-                    radius: 40,
-                    backgroundColor: business.isActive 
-                        ? AppTheme.primaryColor 
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                    child: Icon(
-                      Icons.business,
-                      size: 40,
-                      color: business.isActive 
-                          ? Colors.white 
-                          : Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: business.isActive 
+                  ? AppTheme.primaryColor 
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              child: Icon(
+                Icons.business,
+                size: 40,
+                color: business.isActive 
+                    ? Colors.white 
+                    : Theme.of(context).colorScheme.surface,
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -453,14 +396,6 @@ class _BusinessInfo extends StatelessWidget {
                 isLink: true,
               ),
             ],
-            if (business.logoUrl != null) ...[
-              _InfoRow(
-                icon: Icons.image,
-                label: 'Logo URL',
-                value: business.logoUrl!,
-                isLink: true,
-              ),
-            ],
           ],
         ),
       ),
@@ -536,12 +471,32 @@ class _StatusAndActions extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Status & Actions',
+              'Quick Actions',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.go('/punch-cards?businessId=${business.id}'),
+                    icon: const Icon(Icons.card_giftcard),
+                    label: const Text('View Punch Cards'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.go('/rewards?businessId=${business.id}'),
+                    icon: const Icon(Icons.redeem),
+                    label: const Text('View Rewards'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -599,7 +554,11 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Icon(
+            icon,
+            size: 20,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -608,7 +567,7 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -619,8 +578,8 @@ class _InfoRow extends StatelessWidget {
                     },
                     child: Text(
                       value,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -632,8 +591,8 @@ class _InfoRow extends StatelessWidget {
                     },
                     child: Text(
                       value,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -645,8 +604,8 @@ class _InfoRow extends StatelessWidget {
                     },
                     child: Text(
                       value,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
                         decoration: TextDecoration.underline,
                       ),
                     ),

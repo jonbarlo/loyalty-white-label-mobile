@@ -341,17 +341,58 @@ class _BusinessCard extends StatelessWidget {
       ),
       margin: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 12),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: business.isActive 
-              ? (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor)
-              : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
-          child: Icon(
-            Icons.business,
-            color: business.isActive 
-                ? Colors.white 
-                : (GlobalThemeService.getSurfaceColor(context) ?? Theme.of(context).colorScheme.surface),
-          ),
-        ),
+        leading: business.logoUrl != null && business.logoUrl!.isNotEmpty
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.network(
+                  business.logoUrl!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return CircleAvatar(
+                      backgroundColor: business.isActive 
+                          ? (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor)
+                          : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
+                      child: Icon(
+                        Icons.business,
+                        color: business.isActive 
+                            ? Colors.white 
+                            : (GlobalThemeService.getSurfaceColor(context) ?? Theme.of(context).colorScheme.surface),
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return CircleAvatar(
+                      backgroundColor: business.isActive 
+                          ? (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor)
+                          : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                            : null,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          business.isActive 
+                              ? Colors.white 
+                              : (GlobalThemeService.getSurfaceColor(context) ?? Theme.of(context).colorScheme.surface),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+            : CircleAvatar(
+                backgroundColor: business.isActive 
+                    ? (GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor)
+                    : (GlobalThemeService.getTextSecondaryColor(context) ?? Theme.of(context).colorScheme.onSurfaceVariant),
+                child: Icon(
+                  Icons.business,
+                  color: business.isActive 
+                      ? Colors.white 
+                      : (GlobalThemeService.getSurfaceColor(context) ?? Theme.of(context).colorScheme.surface),
+                ),
+              ),
         title: Text(
           business.name,
           style: TextStyle(

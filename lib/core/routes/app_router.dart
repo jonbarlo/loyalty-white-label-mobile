@@ -135,16 +135,7 @@ class AppRouter {
             name: 'business-edit',
             builder: (context, state) {
               final id = int.parse(state.pathParameters['id']!);
-              // For now, we'll create a placeholder business
-              // In a real app, you'd load the business data here
-              final business = Business(
-                id: id,
-                name: 'Loading...',
-                isActive: true,
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-              );
-              return BusinessFormScreen(business: business);
+              return BusinessFormScreen(businessId: id);
             },
           ),
           GoRoute(
