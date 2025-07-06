@@ -558,6 +558,22 @@ class _StatusAndActions extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
+                    onPressed: () => context.go('/coupons'),
+                    icon: const Icon(Icons.local_offer),
+                    label: const Text('Coupons'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
                     onPressed: () => context.go('/businesses/test'),
                     icon: const Icon(Icons.bug_report),
                     label: const Text('Test API'),

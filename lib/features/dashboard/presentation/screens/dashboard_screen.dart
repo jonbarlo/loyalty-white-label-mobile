@@ -258,12 +258,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: _buildActionCard(
+                icon: Icons.local_offer,
+                title: 'Coupons',
+                subtitle: 'Available offers',
+                onTap: () => context.go('/my-coupons'),
+                color: Colors.green,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
                 icon: Icons.person,
                 title: 'Profile',
                 subtitle: 'Account settings',
                 onTap: () => context.go('/profile'),
                 color: GlobalThemeService.getSecondaryColor(context) ?? AppTheme.successColor,
               ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Container(), // Empty space for layout balance
             ),
           ],
         ),

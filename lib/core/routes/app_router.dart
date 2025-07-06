@@ -15,8 +15,12 @@ import '../../features/business/presentation/screens/business_detail_screen.dart
 import '../../features/business/presentation/screens/business_form_screen.dart';
 import '../../features/business/presentation/screens/business_test_screen.dart';
 import '../../features/theme_editor/presentation/screens/theme_editor_screen.dart';
+import '../../features/coupons/presentation/screens/admin_coupons_screen.dart';
+import '../../features/coupons/presentation/screens/customer_coupons_screen.dart';
+import '../../features/coupons/presentation/screens/coupon_form_screen.dart';
 import '../providers/auth_provider.dart';
 import '../../core/models/business.dart';
+import '../../core/models/coupon.dart';
 
 class AppRouter {
   final AuthProvider authProvider;
@@ -161,6 +165,25 @@ class AppRouter {
               return BusinessDetailScreen(businessId: id);
             },
           ),
+          // Coupon routes
+          GoRoute(
+            path: '/coupons',
+            name: 'admin-coupons',
+            builder: (context, state) => const AdminCouponsScreen(),
+          ),
+          GoRoute(
+            path: '/coupon-form',
+            name: 'coupon-form',
+            builder: (context, state) {
+              final coupon = state.extra as Coupon?;
+              return CouponFormScreen(coupon: coupon);
+            },
+          ),
+          GoRoute(
+            path: '/my-coupons',
+            name: 'customer-coupons',
+            builder: (context, state) => const CustomerCouponsScreen(),
+          ),
         ],
       ),
     ],
@@ -198,7 +221,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         ),
       ]);
     } else {
-      // For regular users: show Dashboard, Punch Cards, Points, Rewards, and Profile
+      // For regular users: show Dashboard, Punch Cards, Points, Rewards, Coupons, and Profile
       items.addAll([
         NavigationItem(
           icon: Icons.dashboard,
@@ -219,6 +242,11 @@ class _MainScaffoldState extends State<MainScaffold> {
           icon: Icons.redeem,
           label: 'Rewards',
           route: '/rewards',
+        ),
+        NavigationItem(
+          icon: Icons.local_offer,
+          label: 'Coupons',
+          route: '/my-coupons',
         ),
         NavigationItem(
           icon: Icons.person,

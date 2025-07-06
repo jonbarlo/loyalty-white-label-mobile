@@ -20,6 +20,8 @@ import 'core/providers/theme_loader.dart';
 import 'core/services/storage_test_service.dart';
 import 'core/providers/business_image_provider.dart';
 import 'core/services/business_image_service.dart';
+import 'core/providers/coupon_provider.dart';
+import 'core/services/coupon_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +103,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(
           create: (context) => BusinessImageProvider(BusinessImageService(widget.apiService.dio)),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CouponProvider(CouponService(widget.apiService)),
         ),
       ],
       child: Consumer<AuthProvider>(
