@@ -65,16 +65,19 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    super.initState();
-    debugPrint('[MyApp] initState called');
-  }
-
-  @override
   Widget build(BuildContext context) {
-    debugPrint('[MyApp] build called');
+    final currentBusinessId = AppConfig.currentBusinessId;
+    debugPrint('[MyApp] build called with business ID: $currentBusinessId');
     return MultiProvider(
       providers: [
+        // Provide ApiService so it can be accessed by widgets
+        Provider<ApiService>(
+          create: (context) => widget.apiService,
+        ),
+        // Provide StorageService so it can be accessed by widgets
+        Provider<StorageService>(
+          create: (context) => widget.storageService,
+        ),
         ChangeNotifierProvider(
           create: (context) => AuthProvider(widget.apiService, widget.storageService),
         ),
@@ -107,7 +110,7 @@ class _MyAppState extends State<MyApp> {
           final router = AppRouter(authProvider).router;
           
           return ThemeLoader(
-            businessId: '1',
+            businessId: currentBusinessId,
             child: Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
                 final dynamicBg = themeProvider.theme?.backgroundColor;
@@ -135,5 +138,12 @@ class _MyAppState extends State<MyApp> {
         },
       ),
     );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    // Clear business image cache on hot reload
+    BusinessImageService.clearMemoryCache();
   }
 } 

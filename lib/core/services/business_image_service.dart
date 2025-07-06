@@ -36,6 +36,7 @@ class BusinessImageService {
   /// Load image from API and cache it
   Future<String?> _loadImageFromApi(int businessId, String cacheKey) async {
     try {
+      debugPrint('[BusinessImageService] GET \\${_dio.options.baseUrl}/public/businesses/$businessId');
       final response = await _dio.get('/public/businesses/$businessId');
       final businessData = response.data;
       final imageUrl = businessData['logoUrl'];
@@ -178,5 +179,12 @@ class BusinessImageService {
     } catch (e) {
       debugPrint('[BusinessImageService] Error clearing business cache: $e');
     }
+  }
+
+  /// Clear the in-memory cache (useful for hot reload or business ID change)
+  static void clearMemoryCache() {
+    _memoryCache.clear();
+    _memoryCacheTimestamp.clear();
+    debugPrint('[BusinessImageService] 🗑️ Cleared in-memory business image cache');
   }
 } 

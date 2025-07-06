@@ -36,8 +36,12 @@ class Business {
       website: json['website'],
       logoUrl: json['logoUrl'],
       isActive: json['isActive'] ?? true,
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      createdAt: json['createdAt'] != null && json['createdAt'] is String
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null && json['updatedAt'] is String
+          ? DateTime.parse(json['updatedAt'])
+          : DateTime.now(),
     );
   }
 

@@ -46,10 +46,16 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      debugPrint('[AuthProvider] Attempting login for email: $email');
       final response = await _apiService.login(email, password);
+      
+      debugPrint('[AuthProvider] Login response received: $response');
       
       final token = response['token'];
       final userData = response['user'];
+      
+      debugPrint('[AuthProvider] Token: ${token?.substring(0, 10)}***');
+      debugPrint('[AuthProvider] User data: $userData');
       
       await _storageService.saveAuthToken(token);
       await _storageService.saveUserData(userData);
@@ -58,8 +64,10 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       
+      debugPrint('[AuthProvider] Login successful for user: ${_user?.name}');
       return true;
     } catch (e) {
+      debugPrint('[AuthProvider] Login failed with error: $e');
       _error = e.toString();
       _isLoading = false;
       notifyListeners();

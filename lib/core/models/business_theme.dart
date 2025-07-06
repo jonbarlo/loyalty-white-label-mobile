@@ -112,6 +112,10 @@ class BusinessTheme {
   }
 
   static Color _parseColor(dynamic value) {
+    if (value == null) {
+      // Return a default color if value is null
+      return const Color(0xFF000000);
+    }
     if (value is int) return Color(value);
     if (value is String && value.startsWith('#')) {
       final hex = value.replaceFirst('#', '');
@@ -121,10 +125,12 @@ class BusinessTheme {
         return Color(int.parse(hex, radix: 16));
       }
     }
-    throw ArgumentError('Invalid color value: $value');
+    // Return a default color instead of throwing an error
+    debugPrint('Warning: Invalid color value: $value, using default black');
+    return const Color(0xFF000000);
   }
 
   static String _colorToHex(Color color) {
-    return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
+    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
   }
 } 

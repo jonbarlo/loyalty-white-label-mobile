@@ -7,6 +7,10 @@ import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/services/global_theme_service.dart';
 import '../../../../core/providers/business_image_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/services/api_service.dart';
+import '../../../../core/services/storage_service.dart';
+import '../../../../core/models/business.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +21,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'jonathan@506software.com');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -32,9 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Load business image for business ID 1 (default)
+    // Load business image for current business ID
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BusinessImageProvider>().loadBusinessImage(1);
+      context.read<BusinessImageProvider>().loadBusinessImage(int.parse(AppConfig.currentBusinessId));
     });
   }
 
@@ -45,21 +49,33 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(
-      _emailController.text,
-      _passwordController.text,
-    );
-
-    if (success && mounted) {
-      context.go('/dashboard');
-    } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error ?? 'Login failed'),
-          backgroundColor: AppTheme.errorColor,
-        ),
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.login(
+        _emailController.text,
+        _passwordController.text,
       );
+
+      if (success && mounted) {
+        context.go('/dashboard');
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authProvider.error ?? 'Login failed'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('[LoginScreen] Error during login: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login error: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
     }
 
     if (mounted) {
@@ -123,38 +139,47 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Logo and Title
                           Consumer<BusinessImageProvider>(
                             builder: (context, businessImageProvider, child) {
-                              final imageUrl = businessImageProvider.getBusinessImage(1);
-                              final isLoading = businessImageProvider.isLoading(1);
+                              final imageUrl = businessImageProvider.getBusinessImage(int.parse(AppConfig.currentBusinessId));
+                              final isLoading = businessImageProvider.isLoading(int.parse(AppConfig.currentBusinessId));
                               
                               if (isLoading) {
-                                return const SizedBox(
-                                  height: 80,
-                                  width: 80,
-                                  child: CircularProgressIndicator(
+                                return SizedBox(
+                                  height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+                                  width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                                  child: const CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 );
                               }
                               
                               if (imageUrl != null && imageUrl.isNotEmpty) {
-                                return ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                    GlobalThemeService.getBorderRadius(context) ?? 12,
+                                return Container(
+                                  height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+                                  width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1), // Semi-transparent background
+                                    borderRadius: BorderRadius.circular(
+                                      GlobalThemeService.getBorderRadius(context) ?? 12,
+                                    ),
                                   ),
-                                  child: Image.network(
-                                    imageUrl,
-                                    height: 80,
-                                    width: 80,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      debugPrint('[LoginScreen] Error loading business image: $error');
-                                      return _buildFallbackIcon();
-                                    },
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return SizedBox(
-                                        height: 80,
-                                        width: 80,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      GlobalThemeService.getBorderRadius(context) ?? 12,
+                                    ),
+                                    child: Image.network(
+                                      '${imageUrl}?business=${AppConfig.currentBusinessId}',
+                                      height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+                                      width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                                      fit: BoxFit.contain, // Show full image in container
+                                      errorBuilder: (context, error, stackTrace) {
+                                        debugPrint('[LoginScreen] Error loading business image: $error');
+                                        return _buildFallbackIcon();
+                                      },
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                                                              return SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+                                        width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
                                         child: CircularProgressIndicator(
                                           value: loadingProgress.expectedTotalBytes != null
                                               ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
@@ -162,7 +187,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                                         ),
                                       );
-                                    },
+                                      },
+                                    ),
                                   ),
                                 );
                               }
@@ -247,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Consumer<AuthProvider>(
                             builder: (context, authProvider, child) {
                               return ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _login,
+                                onPressed: (authProvider.isLoading || _isLoading) ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: GlobalThemeService.getButtonPrimaryColor(context) ?? AppTheme.primaryColor,
                                   foregroundColor: Colors.white,
@@ -261,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                child: authProvider.isLoading
+                                child: (authProvider.isLoading || _isLoading)
                                     ? const SizedBox(
                                         height: 20,
                                         width: 20,
@@ -322,8 +348,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildFallbackIcon() {
     // Use a default business logo when API call fails
     return Container(
-      height: 80,
-      width: 80,
+      height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+      width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
       decoration: BoxDecoration(
         color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
         borderRadius: BorderRadius.circular(
@@ -332,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: Icon(
         Icons.business,
-        size: 40,
+        size: 60, // Increased icon size for larger container
         color: Colors.white,
       ),
     );

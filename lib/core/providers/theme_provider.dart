@@ -39,7 +39,7 @@ class ThemeProvider with ChangeNotifier {
     debugPrint('[ThemeProvider] loadTheme called for businessId: $businessId');
     
     // First, try to load from cache
-    final cachedTheme = await _loadCachedTheme();
+    final cachedTheme = await _loadCachedTheme(businessId);
     if (cachedTheme != null) {
       debugPrint('[ThemeProvider] Using cached theme: ${cachedTheme.toJson()}');
       _theme = cachedTheme;
@@ -70,7 +70,7 @@ class ThemeProvider with ChangeNotifier {
       final theme = await _themeService.fetchBusinessTheme(businessId);
       debugPrint('[ThemeProvider] API theme loaded: ${theme.toJson()}');
       _theme = theme;
-      await _cacheTheme(theme);
+      await _cacheTheme(theme, businessId);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -82,7 +82,7 @@ class ThemeProvider with ChangeNotifier {
         final fallback = await _themeService.fetchDefaultTheme();
         debugPrint('[ThemeProvider] Using fallback theme: ${fallback.toJson()}');
         _theme = fallback;
-        await _cacheTheme(fallback);
+        await _cacheTheme(fallback, businessId);
       } catch (e2) {
         debugPrint('[ThemeProvider] Error loading fallback theme: $e2');
         _theme = null;
@@ -98,7 +98,7 @@ class ThemeProvider with ChangeNotifier {
       final theme = await _themeService.fetchBusinessTheme(businessId);
       debugPrint('[ThemeProvider] Background refresh successful: ${theme.toJson()}');
       _theme = theme;
-      await _cacheTheme(theme);
+      await _cacheTheme(theme, businessId);
       _hasError = false;
       notifyListeners();
     } catch (e) {
@@ -108,8 +108,11 @@ class ThemeProvider with ChangeNotifier {
   }
 
   /// Load theme from cache
-  Future<BusinessTheme?> _loadCachedTheme() async {
-    debugPrint('[ThemeProvider] Checking cache...');
+  Future<BusinessTheme?> _loadCachedTheme(String businessId) async {
+    debugPrint('[ThemeProvider] Checking cache for businessId: $businessId');
+    
+    final cacheKey = 'cached_theme_$businessId';
+    final timestampKey = 'cached_theme_timestamp_$businessId';
     
     // First check in-memory cache (for development)
     if (_memoryCache != null && _memoryCacheTimestamp != null) {
@@ -119,8 +122,8 @@ class ThemeProvider with ChangeNotifier {
     
     // Then check SharedPreferences
     final prefs = await SharedPreferences.getInstance();
-    final jsonStr = prefs.getString('cached_theme');
-    final timestamp = prefs.getInt('cached_theme_timestamp');
+    final jsonStr = prefs.getString(cacheKey);
+    final timestamp = prefs.getInt(timestampKey);
     
     debugPrint('[ThemeProvider] Cache debug - jsonStr exists: ${jsonStr != null}');
     debugPrint('[ThemeProvider] Cache debug - timestamp exists: ${timestamp != null}');
@@ -133,7 +136,7 @@ class ThemeProvider with ChangeNotifier {
         final jsonMap = json.decode(jsonStr) as Map<String, dynamic>;
         debugPrint('[ThemeProvider] Cache debug - decoded JSON: $jsonMap');
         final theme = BusinessTheme.fromJson(jsonMap);
-        debugPrint('[ThemeProvider] 📦 Found SharedPreferences cache, timestamp: ${DateTime.fromMillisecondsSinceEpoch(timestamp)}');
+        debugPrint('[ThemeProvider] 📦 Found SharedPreferences cache for business $businessId, timestamp: ${DateTime.fromMillisecondsSinceEpoch(timestamp)}');
         
         // Also store in memory cache for faster access
         _memoryCache = theme;
@@ -142,28 +145,32 @@ class ThemeProvider with ChangeNotifier {
         return theme;
       } catch (e) {
         debugPrint('[ThemeProvider] Error decoding cached theme: $e');
-        await _clearCache();
+        await _clearCache(businessId);
       }
     } else {
-      debugPrint('[ThemeProvider] No cache found - jsonStr: ${jsonStr?.substring(0, jsonStr.length > 50 ? 50 : jsonStr.length)}...');
+      debugPrint('[ThemeProvider] No cache found for business $businessId - jsonStr: ${jsonStr?.substring(0, jsonStr.length > 50 ? 50 : jsonStr.length)}...');
     }
     return null;
   }
 
   /// Cache theme with timestamp
-  Future<void> _cacheTheme(BusinessTheme theme) async {
-    debugPrint('[ThemeProvider] Caching theme...');
+  Future<void> _cacheTheme(BusinessTheme theme, String businessId) async {
+    debugPrint('[ThemeProvider] Caching theme for business $businessId...');
     final prefs = await SharedPreferences.getInstance();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final jsonStr = json.encode(theme.toJson());
     
+    final cacheKey = 'cached_theme_$businessId';
+    final timestampKey = 'cached_theme_timestamp_$businessId';
+    
     debugPrint('[ThemeProvider] Cache save debug - JSON length: ${jsonStr.length}');
     debugPrint('[ThemeProvider] Cache save debug - JSON preview: ${jsonStr.substring(0, jsonStr.length > 100 ? 100 : jsonStr.length)}...');
     debugPrint('[ThemeProvider] Cache save debug - Timestamp: $timestamp');
+    debugPrint('[ThemeProvider] Cache save debug - Cache key: $cacheKey');
     
     // Save to SharedPreferences
-    await prefs.setString('cached_theme', jsonStr);
-    await prefs.setInt('cached_theme_timestamp', timestamp);
+    await prefs.setString(cacheKey, jsonStr);
+    await prefs.setInt(timestampKey, timestamp);
     
     // Also save to memory cache for development
     _memoryCache = theme;
@@ -171,12 +178,12 @@ class ThemeProvider with ChangeNotifier {
     debugPrint('[ThemeProvider] 🧠 Saved to memory cache');
     
     // Verify the save worked
-    final savedJson = prefs.getString('cached_theme');
-    final savedTimestamp = prefs.getInt('cached_theme_timestamp');
+    final savedJson = prefs.getString(cacheKey);
+    final savedTimestamp = prefs.getInt(timestampKey);
     debugPrint('[ThemeProvider] Cache save verification - saved JSON exists: ${savedJson != null}');
     debugPrint('[ThemeProvider] Cache save verification - saved timestamp exists: ${savedTimestamp != null}');
     
-    debugPrint('[ThemeProvider] Theme cached with timestamp: ${DateTime.fromMillisecondsSinceEpoch(timestamp)}');
+    debugPrint('[ThemeProvider] Theme cached for business $businessId with timestamp: ${DateTime.fromMillisecondsSinceEpoch(timestamp)}');
   }
 
   /// Check if cache is expired
@@ -187,24 +194,26 @@ class ThemeProvider with ChangeNotifier {
   }
 
   /// Clear cache
-  Future<void> _clearCache() async {
-    debugPrint('[ThemeProvider] Clearing cache...');
+  Future<void> _clearCache(String businessId) async {
+    debugPrint('[ThemeProvider] Clearing cache for business $businessId...');
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('cached_theme');
-    await prefs.remove('cached_theme_timestamp');
+    final cacheKey = 'cached_theme_$businessId';
+    final timestampKey = 'cached_theme_timestamp_$businessId';
+    await prefs.remove(cacheKey);
+    await prefs.remove(timestampKey);
   }
 
   /// Force refresh theme (ignores cache)
   Future<void> refreshTheme(String businessId) async {
-    debugPrint('[ThemeProvider] Force refreshing theme...');
-    await _clearCache();
+    debugPrint('[ThemeProvider] Force refreshing theme for business $businessId...');
+    await _clearCache(businessId);
     await _loadThemeFromApi(businessId);
   }
 
   /// Get cached theme without loading from API
-  Future<void> loadCachedTheme() async {
-    debugPrint('[ThemeProvider] loadCachedTheme called');
-    final cachedTheme = await _loadCachedTheme();
+  Future<void> loadCachedTheme(String businessId) async {
+    debugPrint('[ThemeProvider] loadCachedTheme called for business $businessId');
+    final cachedTheme = await _loadCachedTheme(businessId);
     if (cachedTheme != null) {
       _theme = cachedTheme;
       notifyListeners();
@@ -215,7 +224,27 @@ class ThemeProvider with ChangeNotifier {
   void setTheme(BusinessTheme theme) {
     debugPrint('[ThemeProvider] setTheme called with: ${theme.toJson()}');
     _theme = theme;
-    _cacheTheme(theme); // Cache the new theme
+    // Note: setTheme doesn't have businessId context, so we can't cache it properly
+    // The theme will be cached when loadTheme is called next time
     notifyListeners();
+  }
+
+  /// Clear all theme cache (useful for debugging)
+  Future<void> clearAllCache() async {
+    debugPrint('[ThemeProvider] Clearing all theme cache...');
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys();
+    
+    for (final key in keys) {
+      if (key.startsWith('cached_theme_')) {
+        await prefs.remove(key);
+        debugPrint('[ThemeProvider] Removed cache key: $key');
+      }
+    }
+    
+    // Clear in-memory cache
+    _memoryCache = null;
+    _memoryCacheTimestamp = null;
+    debugPrint('[ThemeProvider] 🗑️ Cleared all theme cache');
   }
 } 

@@ -39,14 +39,29 @@ class AppRouter {
       }
 
       if (isAuthenticated && isAuthRoute) {
-        print('Redirecting to /dashboard');
-        return '/dashboard';
+        // Redirect to appropriate default route based on user role
+        if (authProvider.isAdmin) {
+          print('Admin user, redirecting to /businesses');
+          return '/businesses';
+        } else {
+          print('Regular user, redirecting to /dashboard');
+          return '/dashboard';
+        }
       }
 
       // Redirect non-admin users away from business routes
       if (isAuthenticated && isBusinessRoute && !authProvider.isAdmin) {
         print('Non-admin user trying to access business route, redirecting to /dashboard');
         return '/dashboard';
+      }
+
+      // Redirect admin users away from user-only routes
+      if (isAuthenticated && authProvider.isAdmin) {
+        final userOnlyRoutes = ['/dashboard', '/punch-cards', '/points', '/rewards'];
+        if (userOnlyRoutes.any((route) => state.matchedLocation.startsWith(route))) {
+          print('Admin user trying to access user-only route, redirecting to /businesses');
+          return '/businesses';
+        }
       }
 
       print('No redirect needed');
@@ -166,45 +181,52 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   List<NavigationItem> get _navigationItems {
     final authProvider = context.read<AuthProvider>();
-    final items = <NavigationItem>[
-      NavigationItem(
-        icon: Icons.dashboard,
-        label: 'Dashboard',
-        route: '/dashboard',
-      ),
-    ];
+    final items = <NavigationItem>[];
     
-    // Only show business navigation for admin users
     if (authProvider.isAdmin) {
-      items.add(NavigationItem(
-        icon: Icons.business,
-        label: 'Businesses',
-        route: '/businesses',
-      ));
+      // For admin users: only show Business and Profile
+      items.addAll([
+        NavigationItem(
+          icon: Icons.business,
+          label: 'Businesses',
+          route: '/businesses',
+        ),
+        NavigationItem(
+          icon: Icons.person,
+          label: 'Profile',
+          route: '/profile',
+        ),
+      ]);
+    } else {
+      // For regular users: show Dashboard, Punch Cards, Points, Rewards, and Profile
+      items.addAll([
+        NavigationItem(
+          icon: Icons.dashboard,
+          label: 'Dashboard',
+          route: '/dashboard',
+        ),
+        NavigationItem(
+          icon: Icons.card_giftcard,
+          label: 'Punch Cards',
+          route: '/punch-cards',
+        ),
+        NavigationItem(
+          icon: Icons.stars,
+          label: 'Points',
+          route: '/points',
+        ),
+        NavigationItem(
+          icon: Icons.redeem,
+          label: 'Rewards',
+          route: '/rewards',
+        ),
+        NavigationItem(
+          icon: Icons.person,
+          label: 'Profile',
+          route: '/profile',
+        ),
+      ]);
     }
-    
-    items.addAll([
-      NavigationItem(
-        icon: Icons.card_giftcard,
-        label: 'Punch Cards',
-        route: '/punch-cards',
-      ),
-      NavigationItem(
-        icon: Icons.stars,
-        label: 'Points',
-        route: '/points',
-      ),
-      NavigationItem(
-        icon: Icons.redeem,
-        label: 'Rewards',
-        route: '/rewards',
-      ),
-      NavigationItem(
-        icon: Icons.person,
-        label: 'Profile',
-        route: '/profile',
-      ),
-    ]);
     
     return items;
   }
@@ -214,9 +236,20 @@ class _MainScaffoldState extends State<MainScaffold> {
     final navigationItems = _navigationItems;
     final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
     debugPrint('[MainScaffold] build, scaffoldBackgroundColor: $scaffoldBg');
-    // Adjust current index if it's out of bounds due to dynamic items
-    if (_currentIndex >= navigationItems.length) {
-      _currentIndex = 0;
+    
+    // Determine current index based on current route
+    final currentRoute = GoRouterState.of(context).matchedLocation;
+    int currentIndex = 0;
+    for (int i = 0; i < navigationItems.length; i++) {
+      if (currentRoute.startsWith(navigationItems[i].route)) {
+        currentIndex = i;
+        break;
+      }
+    }
+    
+    // Update current index if it changed
+    if (_currentIndex != currentIndex) {
+      _currentIndex = currentIndex;
     }
     return Scaffold(
       body: widget.child,

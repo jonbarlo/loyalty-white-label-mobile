@@ -30,6 +30,8 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
   final _backgroundColorController = TextEditingController();
   final _textPrimaryColorController = TextEditingController();
   final _textSecondaryColorController = TextEditingController();
+  final _errorColorController = TextEditingController();
+  final _onPrimaryColorController = TextEditingController();
   final _fontSizeBodyController = TextEditingController();
   final _fontSizeHeadingController = TextEditingController();
   final _borderRadiusController = TextEditingController();
@@ -38,7 +40,7 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
   final _defaultMarginController = TextEditingController();
 
   // Store original values for change detection
-  late Map<String, String> _originalValues;
+  Map<String, String> _originalValues = {};
 
   // Color picker state
   Color _currentColor = Colors.blue;
@@ -50,7 +52,20 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
   @override
   void initState() {
     super.initState();
-    _loadCurrentTheme();
+    // Load theme after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCurrentTheme();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload theme when dependencies change (e.g., theme provider updates)
+    final themeProvider = context.watch<ThemeProvider>();
+    if (themeProvider.theme != null && _originalValues.isEmpty) {
+      _loadCurrentTheme();
+    }
   }
 
   @override
@@ -60,6 +75,8 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
     _backgroundColorController.dispose();
     _textPrimaryColorController.dispose();
     _textSecondaryColorController.dispose();
+    _errorColorController.dispose();
+    _onPrimaryColorController.dispose();
     _fontSizeBodyController.dispose();
     _fontSizeHeadingController.dispose();
     _borderRadiusController.dispose();
@@ -73,32 +90,74 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
     final themeProvider = context.read<ThemeProvider>();
     final currentTheme = themeProvider.theme;
     
+    debugPrint('[ThemeEditor] Loading current theme: \\${currentTheme?.toJson()}');
+    
     if (currentTheme != null) {
-      _primaryColorController.text = _colorToHex(currentTheme.primaryColor);
-      _secondaryColorController.text = _colorToHex(currentTheme.secondaryColor);
-      _backgroundColorController.text = _colorToHex(currentTheme.backgroundColor);
-      _textPrimaryColorController.text = _colorToHex(currentTheme.textPrimaryColor);
-      _textSecondaryColorController.text = _colorToHex(currentTheme.textSecondaryColor);
-      _fontSizeBodyController.text = currentTheme.fontSizeBody.toString();
-      _fontSizeHeadingController.text = currentTheme.fontSizeHeading.toString();
-      _borderRadiusController.text = currentTheme.borderRadius.toString();
-      _elevationController.text = currentTheme.elevation.toString();
-      _defaultPaddingController.text = currentTheme.defaultPadding.toString();
-      _defaultMarginController.text = currentTheme.defaultMargin.toString();
-      // Store original values for change detection
-      _originalValues = {
-        'primaryColor': _primaryColorController.text,
-        'secondaryColor': _secondaryColorController.text,
-        'backgroundColor': _backgroundColorController.text,
-        'textPrimaryColor': _textPrimaryColorController.text,
-        'textSecondaryColor': _textSecondaryColorController.text,
-        'fontSizeBody': _fontSizeBodyController.text,
-        'fontSizeHeading': _fontSizeHeadingController.text,
-        'borderRadius': _borderRadiusController.text,
-        'elevation': _elevationController.text,
-        'defaultPadding': _defaultPaddingController.text,
-        'defaultMargin': _defaultMarginController.text,
-      };
+      setState(() {
+        _primaryColorController.text = _colorToHex(currentTheme.primaryColor ?? Color(0xFF4F46E5));
+        _secondaryColorController.text = _colorToHex(currentTheme.secondaryColor ?? Color(0xFF6366F1));
+        _backgroundColorController.text = _colorToHex(currentTheme.backgroundColor ?? Color(0xFFFFFFFF));
+        _textPrimaryColorController.text = _colorToHex(currentTheme.textPrimaryColor ?? Color(0xFF1F2937));
+        _textSecondaryColorController.text = _colorToHex(currentTheme.textSecondaryColor ?? Color(0xFF6B7280));
+        _errorColorController.text = _colorToHex(currentTheme.errorColor ?? Color(0xFFEF4444));
+        _onPrimaryColorController.text = _colorToHex(const Color(0xFFFFFFFF));
+        _fontSizeBodyController.text = (currentTheme.fontSizeBody ?? 16).toString();
+        _fontSizeHeadingController.text = (currentTheme.fontSizeHeading ?? 24).toString();
+        _borderRadiusController.text = (currentTheme.borderRadius ?? 12).toString();
+        _elevationController.text = (currentTheme.elevation ?? 4).toString();
+        _defaultPaddingController.text = (currentTheme.defaultPadding ?? 16).toString();
+        _defaultMarginController.text = (currentTheme.defaultMargin ?? 8).toString();
+        // Store original values for change detection
+        _originalValues = {
+          'primaryColor': _primaryColorController.text,
+          'secondaryColor': _secondaryColorController.text,
+          'backgroundColor': _backgroundColorController.text,
+          'textPrimaryColor': _textPrimaryColorController.text,
+          'textSecondaryColor': _textSecondaryColorController.text,
+          'errorColor': _errorColorController.text,
+          'onPrimaryColor': _onPrimaryColorController.text,
+          'fontSizeBody': _fontSizeBodyController.text,
+          'fontSizeHeading': _fontSizeHeadingController.text,
+          'borderRadius': _borderRadiusController.text,
+          'elevation': _elevationController.text,
+          'defaultPadding': _defaultPaddingController.text,
+          'defaultMargin': _defaultMarginController.text,
+        };
+      });
+      debugPrint('[ThemeEditor] Theme loaded successfully');
+    } else {
+      debugPrint('[ThemeEditor] No theme available, using defaults');
+      // Set default values if no theme is available
+      setState(() {
+        _primaryColorController.text = '#4F46E5';
+        _secondaryColorController.text = '#6366F1';
+        _backgroundColorController.text = '#FFFFFF';
+        _textPrimaryColorController.text = '#1F2937';
+        _textSecondaryColorController.text = '#6B7280';
+        _errorColorController.text = '#EF4444';
+        _onPrimaryColorController.text = '#FFFFFF';
+        _fontSizeBodyController.text = '16';
+        _fontSizeHeadingController.text = '24';
+        _borderRadiusController.text = '12';
+        _elevationController.text = '4';
+        _defaultPaddingController.text = '16';
+        _defaultMarginController.text = '8';
+        _originalValues = {
+          'primaryColor': _primaryColorController.text,
+          'secondaryColor': _secondaryColorController.text,
+          'backgroundColor': _backgroundColorController.text,
+          'textPrimaryColor': _textPrimaryColorController.text,
+          'textSecondaryColor': _textSecondaryColorController.text,
+          'errorColor': _errorColorController.text,
+          'onPrimaryColor': _onPrimaryColorController.text,
+          'fontSizeBody': _fontSizeBodyController.text,
+          'fontSizeHeading': _fontSizeHeadingController.text,
+          'borderRadius': _borderRadiusController.text,
+          'elevation': _elevationController.text,
+          'defaultPadding': _defaultPaddingController.text,
+          'defaultMargin': _defaultMarginController.text,
+        };
+      });
     }
   }
 
@@ -165,7 +224,9 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
             TextButton(
               onPressed: () {
                 if (_activeColorController != null) {
-                  _activeColorController!.text = _colorToHex(_currentColor);
+                  setState(() {
+                    _activeColorController!.text = _colorToHex(_currentColor);
+                  });
                 }
                 Navigator.of(context).pop();
               },
@@ -241,18 +302,15 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
       // Build payload with only changed fields
       final payload = <String, dynamic>{
         'id': int.parse(widget.businessId!),
+        // Always include required fields
+        'primaryColor': _formatColor(_primaryColorController.text),
+        'secondaryColor': _formatColor(_secondaryColorController.text),
+        'errorColor': _formatColor(_errorColorController.text),
+        'textPrimaryColor': _formatColor(_textPrimaryColorController.text),
+        'onPrimaryColor': _formatColor(_onPrimaryColorController.text),
       };
-      if (_primaryColorController.text != _originalValues['primaryColor']) {
-        payload['primaryColor'] = _formatColor(_primaryColorController.text);
-      }
-      if (_secondaryColorController.text != _originalValues['secondaryColor']) {
-        payload['secondaryColor'] = _formatColor(_secondaryColorController.text);
-      }
       if (_backgroundColorController.text != _originalValues['backgroundColor']) {
         payload['backgroundColor'] = _formatColor(_backgroundColorController.text);
-      }
-      if (_textPrimaryColorController.text != _originalValues['textPrimaryColor']) {
-        payload['textPrimaryColor'] = _formatColor(_textPrimaryColorController.text);
       }
       if (_textSecondaryColorController.text != _originalValues['textSecondaryColor']) {
         payload['textSecondaryColor'] = _formatColor(_textSecondaryColorController.text);
@@ -275,8 +333,7 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
       if (_defaultMarginController.text != _originalValues['defaultMargin']) {
         payload['defaultMargin'] = double.tryParse(_defaultMarginController.text);
       }
-      if (payload.length == 1) {
-        // Only id, nothing changed
+      if (payload.length == 5) { // Only id + 4 required fields, nothing else changed
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('No changes to save.'),
@@ -319,6 +376,8 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
         'backgroundColor': _backgroundColorController.text,
         'textPrimaryColor': _textPrimaryColorController.text,
         'textSecondaryColor': _textSecondaryColorController.text,
+        'errorColor': _errorColorController.text,
+        'onPrimaryColor': _onPrimaryColorController.text,
         'fontSizeBody': _fontSizeBodyController.text,
         'fontSizeHeading': _fontSizeHeadingController.text,
         'borderRadius': _borderRadiusController.text,
@@ -350,6 +409,8 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
     _backgroundColorController.text = _colorToHex(AppTheme.backgroundColor);
     _textPrimaryColorController.text = _colorToHex(AppTheme.textPrimary);
     _textSecondaryColorController.text = _colorToHex(AppTheme.textSecondary);
+    _errorColorController.text = _colorToHex(AppTheme.errorColor);
+    _onPrimaryColorController.text = _colorToHex(const Color(0xFFFFFFFF));
     _fontSizeBodyController.text = '16.0';
     _fontSizeHeadingController.text = '24.0';
     _borderRadiusController.text = '8.0';
@@ -429,6 +490,8 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
                         _buildColorField('Background Color', _backgroundColorController, Icons.format_color_fill),
                         _buildColorField('Text Primary Color', _textPrimaryColorController, Icons.text_fields),
                         _buildColorField('Text Secondary Color', _textSecondaryColorController, Icons.text_format),
+                        _buildColorField('Error Color', _errorColorController, Icons.error),
+                        _buildColorField('On Primary Color', _onPrimaryColorController, Icons.format_paint),
                         
                         SizedBox(height: GlobalThemeService.getDefaultMargin(context) ?? 24),
                         _buildSectionTitle('Typography'),
@@ -546,90 +609,109 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
   Widget _buildColorField(String label, TextEditingController controller, IconData icon) {
     return Padding(
       padding: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 12),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: label,
-                prefixIcon: Icon(
-                  icon,
-                  color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
-                ),
-                suffixIcon: Container(
-                  margin: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 8),
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: _hexToColor(controller.text) ?? Colors.grey,
-                    borderRadius: BorderRadius.circular(
-                      GlobalThemeService.getBorderRadius(context) ?? 4,
-                    ),
-                    border: Border.all(
-                      color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
-                    ),
-                  ),
-                ),
-                filled: true,
-                fillColor: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(
-                    GlobalThemeService.getBorderRadius(context) ?? 8,
-                  ),
-                  borderSide: BorderSide(
-                    color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(
-                    GlobalThemeService.getBorderRadius(context) ?? 8,
-                  ),
-                  borderSide: BorderSide(
-                    color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(
-                    GlobalThemeService.getBorderRadius(context) ?? 8,
-                  ),
-                  borderSide: BorderSide(
-                    color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
-                    width: 2,
-                  ),
-                ),
+          Padding(
+            padding: EdgeInsets.only(
+              left: GlobalThemeService.getDefaultPadding(context) ?? 12,
+              bottom: GlobalThemeService.getDefaultMargin(context) ?? 4,
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
+                fontWeight: FontWeight.w500,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select a color';
-                }
-                if (_hexToColor(value) == null) {
-                  return 'Please select a valid color';
-                }
-                return null;
-              },
             ),
           ),
-          SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 8),
-          Container(
-            decoration: BoxDecoration(
-              color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
-              borderRadius: BorderRadius.circular(
-                GlobalThemeService.getBorderRadius(context) ?? 8,
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: controller,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    hintText: 'Select color',
+                    prefixIcon: Icon(
+                      icon,
+                      color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                    ),
+                    suffixIcon: Container(
+                      margin: EdgeInsets.all(GlobalThemeService.getDefaultPadding(context) ?? 8),
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _hexToColor(controller.text) ?? Colors.grey,
+                        borderRadius: BorderRadius.circular(
+                          GlobalThemeService.getBorderRadius(context) ?? 4,
+                        ),
+                        border: Border.all(
+                          color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                        ),
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 8,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 8,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(
+                        GlobalThemeService.getBorderRadius(context) ?? 8,
+                      ),
+                      borderSide: BorderSide(
+                        color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a color';
+                    }
+                    if (_hexToColor(value) == null) {
+                      return 'Please select a valid color';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              border: Border.all(
-                color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+              SizedBox(width: GlobalThemeService.getDefaultMargin(context) ?? 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+                  borderRadius: BorderRadius.circular(
+                    GlobalThemeService.getBorderRadius(context) ?? 8,
+                  ),
+                  border: Border.all(
+                    color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                  ),
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.colorize,
+                    color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+                  ),
+                  onPressed: () => _showColorPicker(controller, label),
+                  tooltip: 'Pick Color',
+                ),
               ),
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.colorize,
-                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
-              ),
-              onPressed: () => _showColorPicker(controller, label),
-              tooltip: 'Pick Color',
-            ),
+            ],
           ),
         ],
       ),
@@ -639,52 +721,71 @@ class _ThemeEditorScreenState extends State<ThemeEditorScreen> {
   Widget _buildNumberField(String label, TextEditingController controller, IconData icon) {
     return Padding(
       padding: EdgeInsets.only(bottom: GlobalThemeService.getDefaultMargin(context) ?? 12),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(
-            icon,
-            color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
-          ),
-          filled: true,
-          fillColor: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              GlobalThemeService.getBorderRadius(context) ?? 8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(
+              left: GlobalThemeService.getDefaultPadding(context) ?? 12,
+              bottom: GlobalThemeService.getDefaultMargin(context) ?? 4,
             ),
-            borderSide: BorderSide(
-              color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: GlobalThemeService.getFontSizeBody(context) ?? 14,
+                fontWeight: FontWeight.w500,
+                color: GlobalThemeService.getTextPrimaryColor(context) ?? AppTheme.textPrimary,
+              ),
             ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              GlobalThemeService.getBorderRadius(context) ?? 8,
+          TextFormField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: 'Enter value',
+              prefixIcon: Icon(
+                icon,
+                color: GlobalThemeService.getTextSecondaryColor(context) ?? AppTheme.textSecondary,
+              ),
+              filled: true,
+              fillColor: GlobalThemeService.getSurfaceColor(context) ?? Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  GlobalThemeService.getBorderRadius(context) ?? 8,
+                ),
+                borderSide: BorderSide(
+                  color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  GlobalThemeService.getBorderRadius(context) ?? 8,
+                ),
+                borderSide: BorderSide(
+                  color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(
+                  GlobalThemeService.getBorderRadius(context) ?? 8,
+                ),
+                borderSide: BorderSide(
+                  color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
+                  width: 2,
+                ),
+              ),
             ),
-            borderSide: BorderSide(
-              color: GlobalThemeService.getDividerColor(context) ?? AppTheme.borderColor,
-            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a value';
+              }
+              if (double.tryParse(value) == null) {
+                return 'Please enter a valid number';
+              }
+              return null;
+            },
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(
-              GlobalThemeService.getBorderRadius(context) ?? 8,
-            ),
-            borderSide: BorderSide(
-              color: GlobalThemeService.getPrimaryColor(context) ?? AppTheme.primaryColor,
-              width: 2,
-            ),
-          ),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter a value';
-          }
-          if (double.tryParse(value) == null) {
-            return 'Please enter a valid number';
-          }
-          return null;
-        },
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ class AppConfig {
   static const String _defaultApiUrl = 'http://localhost:3000';
   static const int _defaultApiTimeout = 30000;
   static const String _defaultAppVersion = '1.0.0';
+  static const String _defaultCurrentBusinessId = '1';
 
   // App Configuration
   static String get appName => dotenv.env['APP_NAME'] ?? _defaultAppName;
@@ -17,6 +18,9 @@ class AppConfig {
   // Feature Flags
   static bool get enableNotifications => dotenv.env['ENABLE_NOTIFICATIONS']?.toLowerCase() == 'true';
   static bool get enableQrCode => dotenv.env['ENABLE_QR_CODE']?.toLowerCase() == 'true';
+  
+  // Multi-Business Support
+  static String get currentBusinessId => dotenv.env['CURRENT_BUSINESS_ID'] ?? _defaultCurrentBusinessId;
   
   // Development
   static bool get debugMode => dotenv.env['DEBUG_MODE']?.toLowerCase() == 'true';
@@ -46,6 +50,7 @@ class AppConfig {
       'apiTimeout': apiTimeout,
       'enableNotifications': enableNotifications,
       'enableQrCode': enableQrCode,
+      'currentBusinessId': currentBusinessId,
       'debugMode': debugMode,
     };
   }

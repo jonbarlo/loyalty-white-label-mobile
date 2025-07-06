@@ -8,6 +8,7 @@ class ThemeService {
 
   Future<BusinessTheme> fetchBusinessTheme(String businessId) async {
     final url = '/businesses/$businessId/theme';
+    debugPrint('[ThemeService] GET \\${dio.options.baseUrl}$url');
     try {
       debugPrint('[ThemeService] 🌐 Making API call to: $url');
       final response = await dio.get(url);
@@ -25,6 +26,7 @@ class ThemeService {
 
   Future<BusinessTheme> fetchDefaultTheme() async {
     final url = '/themes/default';
+    debugPrint('[ThemeService] GET \\${dio.options.baseUrl}$url');
     try {
       debugPrint('[ThemeService] 🌐 Making API call to: $url');
       final response = await dio.get(url);
@@ -42,6 +44,7 @@ class ThemeService {
 
   Future<BusinessTheme> updateBusinessTheme(String businessId, BusinessTheme theme) async {
     final url = '/businesses/$businessId/theme';
+    debugPrint('[ThemeService] PUT \\${dio.options.baseUrl}$url');
     try {
       debugPrint('[ThemeService] 🌐 Making PUT API call to: $url');
       debugPrint('[ThemeService] 📤 Sending theme data: ${theme.toJson()}');
